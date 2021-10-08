@@ -15,7 +15,7 @@ import AddMorePopover from './components/addMore/AddMorePopover'
 import ViewTypes from './types/ViewTypes'
 import CellUnits from './types/CellUnits'
 import SummaryPos from './types/SummaryPos'
-import DemoData from './examples/DemoData'
+import DemoData from '../DemoData'
 import 'antd/dist/antd.css';
 import "./css/style.css"
 import {LeftOutlined, RightOutlined} from "@ant-design/icons";

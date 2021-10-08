@@ -51,18 +51,11 @@ class ResourceEvents extends Component {
         }
     }
 
-    UNSAFE_componentWillReceiveProps(np) {
+    componentWillUnmount() {
         if (supportTouch) {
             // this.eventContainer.removeEventListener('touchstart', this.initDrag, false);
         } else {
             this.eventContainer.removeEventListener('mousedown', this.initDrag, false);
-        }
-        if (np.config.creatable) {
-            if (supportTouch) {
-                // this.eventContainer.addEventListener('touchstart', this.initDrag, false);
-            } else {
-                this.eventContainer.addEventListener('mousedown', this.initDrag, false);
-            }
         }
     }
 

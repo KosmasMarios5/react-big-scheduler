@@ -1,31 +1,42 @@
 {
   "name": "scheduler",
   "version": "0.1.0",
-  "private": true,
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KosmasMarios5/react-big-scheduler.git"
+  },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
     "antd": "^4.16.13",
-    "react": "^17.0.2",
     "react-dnd": "^14.0.4",
-    "react-dnd-html5-backend": "^14.0.2",
-    "react-dom": "^17.0.2",
-    "rrule": "^2.6.8",
-    "web-vitals": "^1.0.1"
+    "react-dnd-html5-backend": "^14.0.2"
+  },
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
+    "@babel/cli": "^7.15.7",
+    "@babel/core": "^7.15.8",
+    "@babel/preset-react": "^7.14.5",
     "moment": "^2.24.0",
     "react-redux": "^7.0.3",
     "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0",
     "react-router-redux": "^4.0.8",
-    "react-scripts": "^4.0.3"
+    "react-scripts": "^4.0.3",
+    "rimraf": "^3.0.2"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "rimraf dist && NODE_ENV=production babel src/lib --copy-files",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

@@ -1,9 +1,9 @@
 /* eslint-disable no-restricted-globals */
 import React, {Component} from 'react'
-import {DemoData, ViewTypes} from '../SchedulerMain'
 
-import SchedulerWrapper from "../index";
+import Scheduler, {ViewTypes} from "./lib";
 import moment from "moment";
+import DemoData from "./DemoData";
 
 class Basic extends Component {
 
@@ -99,7 +99,7 @@ class Basic extends Component {
     render() {
         const {events, resources} = this.state;
         return (
-            <SchedulerWrapper
+            <Scheduler
                 events={events}
                 resources={resources}
                 localeMoment={moment}
