@@ -1,28 +1,24 @@
 /* eslint-disable no-restricted-globals */
 import React, {Component} from 'react'
-//import moment from 'moment'
-//import 'moment/locale/zh-cn';
-// import 'antd/lib/style/index.less';     //Add this code for locally example
-import {DemoData, ViewTypes} from '../index_2'
+import {DemoData, ViewTypes} from '../SchedulerMain'
 
-import SchedulerWrapper from "../SchedulerWrapper";
+import SchedulerWrapper from "../index";
 import moment from "moment";
 
 class Basic extends Component {
+
     state = {
         events: DemoData.events,
         resources: DemoData.resources
     }
 
     prevClick = () => {
-
     }
 
     nextClick = () => {
     }
 
     onViewChange = (view) => {
-
     }
 
     eventClicked = (event) => {
@@ -103,39 +99,33 @@ class Basic extends Component {
     render() {
         const {events, resources} = this.state;
         return (
-            <div>
-                {/*<Nav/>*/}
-                <div>
-                    <SchedulerWrapper
-                        events={events}
-                        resources={resources}
-                        localeMoment={moment}
-                        date={'2017-12-18'}
+            <SchedulerWrapper
+                events={events}
+                resources={resources}
+                localeMoment={moment}
+                date={'2017-12-18'}
 
-                        onPreviousClick={this.prevClick}
-                        onNextClick={this.nextClick}
+                onPreviousClick={this.prevClick}
+                onNextClick={this.nextClick}
 
-                        onSelectDate={this.onSelectDate}
-                        onViewChange={this.onViewChange}
-                        eventItemClick={this.eventClicked}
-                        viewEventClick={this.ops1}
-                        viewEventText="Ops 1"
-                        viewEvent2Text="Ops 2"
-                        viewEvent2Click={this.ops2}
-                        updateEventStart={this.updateEventStart}
-                        updateEventEnd={this.updateEventEnd}
-                        onMoveEvent={this.onMoveEvent}
+                onSelectDate={this.onSelectDate}
+                onViewChange={this.onViewChange}
+                eventItemClick={this.eventClicked}
+                viewEventClick={this.ops1}
+                viewEventText="Ops 1"
+                viewEvent2Text="Ops 2"
+                viewEvent2Click={this.ops2}
+                updateEventStart={this.updateEventStart}
+                updateEventEnd={this.updateEventEnd}
+                onMoveEvent={this.onMoveEvent}
 
-                        onCellClick={this.onCellClick}
+                onCellClick={this.onCellClick}
 
-                        onScrollLeft={this.onScrollLeft}
-                        onScrollRight={this.onScrollRight}
-                        onScrollTop={this.onScrollTop}
-                        onScrollBottom={this.onScrollBottom}
-
-                    />
-                </div>
-            </div>
+                onScrollLeft={this.onScrollLeft}
+                onScrollRight={this.onScrollRight}
+                onScrollTop={this.onScrollTop}
+                onScrollBottom={this.onScrollBottom}
+            />
         )
     }
 }

@@ -8,16 +8,15 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "antd": "^4.16.13",
-    "moment": "^2.24.0",
     "react": "^17.0.2",
     "react-dnd": "^14.0.4",
     "react-dnd-html5-backend": "^14.0.2",
     "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3",
     "rrule": "^2.6.8",
     "web-vitals": "^1.0.1"
   },
   "devDependencies": {
+    "moment": "^2.24.0",
     "react-redux": "^7.0.3",
     "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0",
