@@ -1,12 +1,12 @@
 import React from 'react'
-import {PropTypes} from 'prop-types'
 
 const BodyView = props => {
     const {renderData, headers, config, behaviors, contentCellWidth} = props;
     let cellWidth = contentCellWidth;
 
-    let displayRenderData = renderData.filter(o => o.render);
-    let tableRows = displayRenderData.map((item) => {
+    // let displayRenderData = renderData.filter(o => o.expanded);
+    // let displayRenderData = renderData.filter(o => o.expanded);
+    let tableRows = renderData.map((item) => {
         let rowCells = headers.map((header, index) => {
             let key = item.slotId + '_' + header.time;
             let style = index === headers.length - 1 ? {} : {width: cellWidth};
@@ -40,8 +40,6 @@ const BodyView = props => {
     );
 };
 
-BodyView.propTypes = {
-
-}
+BodyView.propTypes = {}
 
 export default BodyView

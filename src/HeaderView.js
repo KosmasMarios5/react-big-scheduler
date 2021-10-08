@@ -5,7 +5,7 @@ import {PropTypes} from "prop-types";
 const HeaderView = props => {
     const {headers, cellUnit, config, localeMoment, tableHeaderHeight,contentCellWidth,minuteStepsInHour} = props
 
-    const {schedulerData, nonAgendaCellHeaderTemplateResolver} = props;
+    const {nonAgendaCellHeaderTemplateResolver} = props;
     let headerHeight = tableHeaderHeight;
     let cellWidth = contentCellWidth;
 
@@ -33,7 +33,7 @@ const HeaderView = props => {
                 let element;
 
                 if (typeof nonAgendaCellHeaderTemplateResolver === 'function') {
-                    element = nonAgendaCellHeaderTemplateResolver(schedulerData, item, pFormattedList, style)
+                    element = nonAgendaCellHeaderTemplateResolver(item, pFormattedList, style)
                 } else {
                     const pList = pFormattedList.map((item, index) => (
                         <div key={index}>{item}</div>
@@ -68,7 +68,7 @@ const HeaderView = props => {
             let pFormattedList = config.nonAgendaOtherCellHeaderFormat.split('|').map(item => datetime.format(item));
 
             if (typeof nonAgendaCellHeaderTemplateResolver === 'function') {
-                return nonAgendaCellHeaderTemplateResolver(schedulerData, item, pFormattedList, style)
+                return nonAgendaCellHeaderTemplateResolver(item, pFormattedList, style)
             }
 
             const pList = pFormattedList.map((item, index) => (

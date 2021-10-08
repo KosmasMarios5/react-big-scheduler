@@ -2,15 +2,9 @@ import React, {Component} from 'react'
 import {PropTypes} from 'prop-types'
 import Col from 'antd/lib/col'
 import Row from 'antd/lib/row'
-import Icon from 'antd/lib/icon'
-import 'antd/lib/select/style/index.css'
-import 'antd/lib/grid/style/index.css'
 import Radio from 'antd/lib/radio'
-import 'antd/lib/radio/style/index.css'
 import Popover from 'antd/lib/popover'
-import 'antd/lib/popover/style/index.css'
 import Calendar from 'antd/lib/calendar'
-import 'antd/lib/calendar/style/index.css'
 import DnDSource from './DnDSource'
 import DnDContext from './DnDContext'
 import ResourceView from './ResourceView'
@@ -21,28 +15,19 @@ import AddMorePopover from './AddMorePopover'
 import ViewTypes from './ViewTypes'
 import CellUnits from './CellUnits'
 import SummaryPos from './SummaryPos'
-// import SchedulerData from './SchedulerData'
 import DemoData from './DemoData'
+import 'antd/dist/antd.css';
 import "./css/style.css"
+import {LeftOutlined, RightOutlined} from "@ant-design/icons";
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 
 class Scheduler extends Component {
-
     constructor(props) {
         super(props);
-
         const {contentHeight, isSchedulerResponsive} = props;
-        // let sources = [];
-        // sources.push(new DnDSource((props) => {
-        //     return props.eventItem;
-        // }, EventItem));
-        // if (dndSources != undefined && dndSources.length > 0) {
-        //     sources = [...sources, ...dndSources];
-        // }
-        // let dndContext = new DnDContext(sources, ResourceEvents);
 
         this.currentArea = -1;
 
@@ -73,7 +58,6 @@ class Scheduler extends Component {
     }
 
     static propTypes = {
-        // schedulerData: PropTypes.object.isRequired,
         prevClick: PropTypes.func.isRequired,
         nextClick: PropTypes.func.isRequired,
         onViewChange: PropTypes.func.isRequired,
@@ -105,11 +89,11 @@ class Scheduler extends Component {
         onScrollBottom: PropTypes.func,
     }
 
-    componentDidMount(props, state) {
+    componentDidMount() {
         this.resolveScrollbarSize();
     }
 
-    componentDidUpdate(props, state) {
+    componentDidUpdate(props, state, s) {
         this.resolveScrollbarSize();
 
         const {
@@ -147,7 +131,6 @@ class Scheduler extends Component {
             contentScrollbarWidth = 17,
             resourceScrollbarHeight = 17,
             resourceScrollbarWidth = 17,
-            // contentHeight = schedulerData.getSchedulerContentDesiredHeight();
             contentHeight = this.props.contentHeight;
 
         if (!!this.schedulerContent) {
@@ -274,11 +257,7 @@ class Scheduler extends Component {
         let viewType = parseInt(e.target.value.charAt(0));
         let showAgenda = e.target.value.charAt(1) === '1';
         let isEventPerspective = e.target.value.charAt(2) === '1';
-        onViewChange({
-            viewType: viewType,
-            showAgenda: showAgenda,
-            isEventPerspective: isEventPerspective
-        });
+        onViewChange(viewType, showAgenda, isEventPerspective);
     }
 
     goNext = () => {
@@ -327,13 +306,6 @@ class Scheduler extends Component {
         } else {
             let {resourceTableWidth, schedulerWidth} = this.props;
             let schedulerContainerWidth = width - resourceTableWidth + 1;
-            let resourceEventsList = renderData.filter(o => o.render).map((item) => (
-                <DnDContext
-                    {...this.props}
-                    key={item.slotId}
-                    resourceEvents={item}
-                />
-            ));
 
             let contentScrollbarHeight = this.state.contentScrollbarHeight,
                 contentScrollbarWidth = this.state.contentScrollbarWidth,
@@ -391,10 +363,12 @@ class Scheduler extends Component {
                                     </table>
                                 </div>
                             </div>
-                            <div style={resourceContentStyle} ref={this.schedulerResourceRef}
-                                 onMouseOver={this.onSchedulerResourceMouseOver}
-                                 onMouseOut={this.onSchedulerResourceMouseOut}
-                                 onScroll={this.onSchedulerResourceScroll}>
+                            <div
+                                style={resourceContentStyle}
+                                ref={this.schedulerResourceRef}
+                                onMouseOver={this.onSchedulerResourceMouseOver}
+                                onMouseOut={this.onSchedulerResourceMouseOut}
+                                onScroll={this.onSchedulerResourceScroll}>
                                 <ResourceView
                                     {...this.props}
                                     contentScrollbarHeight={resourcePaddingBottom}
@@ -432,13 +406,24 @@ class Scheduler extends Component {
                                     <div className="scheduler-content">
                                         <table className="scheduler-content-table">
                                             <tbody>
-                                            {resourceEventsList}
+                                            {renderData
+                                                // .filter(o => o.expanded)
+                                                .map((item) => (
+                                                    <DnDContext
+                                                        {...this.props}
+                                                        key={item.slotId}
+                                                        resourceEvents={item}
+                                                    />
+                                                ))}
                                             </tbody>
                                         </table>
                                     </div>
                                     <div className="scheduler-bg">
-                                        <table className="scheduler-bg-table" style={{width: schedulerWidth}}
-                                               ref={this.schedulerContentBgTableRef}>
+                                        <table
+                                            className="scheduler-bg-table"
+                                            style={{width: schedulerWidth}}
+                                            ref={this.schedulerContentBgTableRef}
+                                        >
                                             <BodyView {...this.props}/>
                                         </table>
                                     </div>
@@ -450,30 +435,47 @@ class Scheduler extends Component {
             );
         }
 
-
-        let popover = <div className="popover-calendar"><Calendar fullscreen={false} onSelect={this.onSelect}/></div>;
         let schedulerHeader = <div/>;
+        const {selectedDate} = this.props
         if (config.headerEnabled) {
             schedulerHeader = (
                 <Row type="flex" align="middle" justify="space-between" style={{marginBottom: '24px'}}>
                     {leftCustomHeader}
                     <Col>
                         <div className='header2-text'>
-                            <Icon type="left" style={{marginRight: "8px"}} className="icon-nav"
-                                  onClick={this.goBack}/>
-                            {
-                                calendarPopoverEnabled
-                                    ?
-                                    <Popover content={popover} placement="bottom" trigger="click"
-                                             visible={this.state.visible}
-                                             onVisibleChange={this.handleVisibleChange}>
-                                        <span className={'header2-text-label'}
-                                              style={{cursor: 'pointer'}}>{dateLabel}</span>
-                                    </Popover>
-                                    : <span className={'header2-text-label'}>{dateLabel}</span>
+                            <LeftOutlined
+                                style={{marginRight: 8}}
+                                className="icon-nav"
+                                onClick={this.goBack}
+                            />
+                            {calendarPopoverEnabled ?
+                                <Popover
+                                    content={
+                                        <div className="popover-calendar">
+                                            <Calendar
+                                                fullscreen={false}
+                                                onSelect={this.onSelect}
+                                                value={selectedDate}
+                                            />
+                                        </div>
+                                    }
+                                    placement="bottom"
+                                    trigger="click"
+                                    visible={this.state.visible}
+                                    onVisibleChange={this.handleVisibleChange}>
+                                    <span
+                                        className={'header2-text-label'}
+                                        style={{cursor: 'pointer'}}>
+                                        {dateLabel}
+                                    </span>
+                                </Popover>
+                                : <span className={'header2-text-label'}>{dateLabel}</span>
                             }
-                            <Icon type="right" style={{marginLeft: "8px"}} className="icon-nav"
-                                  onClick={this.goNext}/>
+                            <RightOutlined
+                                style={{marginLeft: 8}}
+                                className="icon-nav"
+                                onClick={this.goNext}
+                            />
                         </div>
                     </Col>
                     <Col>

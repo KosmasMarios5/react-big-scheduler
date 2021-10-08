@@ -10,25 +10,20 @@ const SchedulerContext = React.createContext(null);
 const SchedulerWrapper = (props) => {
     const {localeMoment, events, resources} = props
 
-    const [renderData, setRenderData] = useState([]);
-
+    const [hiddenSlots, setHiddenSlots] = useState([]);
     const [viewType, setViewType] = useState(ViewTypes.Month);
     const [cellUnit, setCellUnit] = useState(CellUnits.Day);
     const [showAgenda, setShowAgenda] = useState(false);
     const [isEventPerspective, setIsEventPerspective] = useState(false);
     const [resizing, setResizing] = useState(false);
     const [scrollToSpecialMoment, setScrollToSpecialMoment] = useState(false);
-    // const [localeMoment, setLocaleMoment] = useState(moment);
     const [config, setConfig] = useState(defaultConfig);
     const [behaviors, setBehaviors] = useState(defaultBehaviors);
-
-    // const [headers, setHeaders] = useState([]);
 
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [selectDate, setSelectDate] = useState(null);
 
-    // const [events, setEvents] = useState([]);
     const [eventGroups, setEventGroups] = useState([]);
 
     const [documentWidth, setDocumentWidth] = useState(0);
@@ -37,21 +32,11 @@ const SchedulerWrapper = (props) => {
         return 60 / config.minuteStep;
     }, [config.minuteStep]);
 
-    const setBesidesWidth = (besidesWidth) => {
-        if (besidesWidth >= 0) {
-            setConfig({
-                ...config,
-                besidesWidth: besidesWidth
-            })
-        }
-
-    }
 
     const _validateResource = useCallback(() => {
         if (Object.prototype.toString.call(resources) !== "[object Array]") {
             throw new Error('Resources should be Array object');
         }
-
         resources.forEach((item, index) => {
             if (typeof item === "undefined") {
                 console.error(`Resource undefined: ${index}`);
@@ -77,7 +62,7 @@ const SchedulerWrapper = (props) => {
 
     }
 
-    const _resolveDate = useCallback((num, date = undefined) => {
+    const _resolveDate = useCallback((num, date) => {
         if (typeof date !== "undefined") {
             setSelectDate(localeMoment(date).format(DATE_FORMAT));
         }
@@ -90,9 +75,8 @@ const SchedulerWrapper = (props) => {
         } else if (viewType === ViewTypes.Day) {
             const newStartDate = typeof date !== "undefined" ? selectDate
                 : localeMoment(startDate).add(num, 'days').format(DATE_FORMAT);
-            const newEndDate = startDate;
             setStartDate(newStartDate)
-            setEndDate(newEndDate)
+            setEndDate(newStartDate)
         } else if (viewType === ViewTypes.Month) {
             const newStartDate = typeof date !== "undefined" ? localeMoment(date).startOf('month').format(DATE_FORMAT)
                 : localeMoment(startDate).add(num, 'months').format(DATE_FORMAT);
@@ -125,9 +109,9 @@ const SchedulerWrapper = (props) => {
             }
         }
     }, [behaviors, localeMoment, selectDate, startDate, viewType])
-    const _createHeaderEvent = (render, span, eventItem) => {
+    const _createHeaderEvent = (expanded, span, eventItem) => {
         return {
-            render: render,
+            expanded: expanded,
             span: span,
             eventItem: eventItem
         };
@@ -147,7 +131,6 @@ const SchedulerWrapper = (props) => {
                 start = start.add(config.dayStartFrom, 'hours');
                 end = end.add(config.dayStopTo, 'hours');
                 header = start;
-
                 while (header >= start && header <= end) {
                     let minuteSteps = getMinuteStepsInHour();
                     for (let i = 0; i < minuteSteps; i++) {
@@ -168,7 +151,6 @@ const SchedulerWrapper = (props) => {
                         let nonWorkingTime = behaviors.isNonWorkingTimeFunc(localeMoment, time, cellUnit);
                         headers.push({time: time, nonWorkingTime: nonWorkingTime});
                     }
-
                     header = header.add(1, 'days');
                 }
             }
@@ -251,6 +233,7 @@ const SchedulerWrapper = (props) => {
             slotMap = new Map();
         slots.forEach((slot) => {
             let headerEvents = headers.map((header) => _createInitHeaderEvents(header));
+            const expanded = !hiddenSlots.includes(slot.id)
             let slotRenderData = {
                 slotId: slot.id,
                 slotName: slot.name,
@@ -262,8 +245,7 @@ const SchedulerWrapper = (props) => {
                 headerItems: headerEvents,
                 indent: 0,
                 hasChildren: false,
-                expanded: true,
-                render: true,
+                expanded: expanded,
             };
             let id = slot.id;
             let value = undefined;
@@ -307,7 +289,7 @@ const SchedulerWrapper = (props) => {
         while (slotStack.length > 0) {
             currentNode = slotStack.pop();
             if (currentNode.data.indent > 0) {
-                currentNode.data.render = config.defaultExpanded;
+                currentNode.data.expanded = config.defaultExpanded;
             }
             if (currentNode.children.length > 0) {
                 currentNode.data.hasChildren = true;
@@ -321,7 +303,7 @@ const SchedulerWrapper = (props) => {
             }
         }
         return initRenderData;
-    }, [_createHeaders, _createInitHeaderEvents, config.defaultExpanded, config.eventItemLineHeight, config.nonAgendaSlotMinHeight, eventGroups, isEventPerspective, resources])
+    }, [_createHeaders, _createInitHeaderEvents, config.defaultExpanded, config.eventItemLineHeight, config.nonAgendaSlotMinHeight, eventGroups, hiddenSlots, isEventPerspective, resources])
 
     const _createRenderData = useCallback(() => {
         let initRenderData = _createInitRenderData();
@@ -422,7 +404,6 @@ const SchedulerWrapper = (props) => {
             });
         }
 
-        // setRenderData(initRenderData)
         return initRenderData
     }, [_createInitRenderData, _getEventSlotId, _getSpan, behaviors, config.checkConflict, config.creatable, config.eventItemLineHeight, events, getCellMaxEvents, localeMoment])
 
@@ -539,18 +520,19 @@ const SchedulerWrapper = (props) => {
         }
     }
 
-    const getDateLabel = () => {
+    const getDateLabel = useCallback(() => {
         let start = localeMoment(startDate);
         let end = localeMoment(endDate);
         let dateLabel = start.format('LL');
 
-        if (start !== end)
+        if (start !== end) {
             dateLabel = `${start.format('LL')}-${end.format('LL')}`;
+        }
 
         if (!!behaviors.getDateLabelFunc)
             dateLabel = behaviors.getDateLabelFunc(localeMoment, viewType, startDate, endDate);
         return dateLabel;
-    }
+    }, [behaviors, endDate, localeMoment, startDate, viewType])
 
     const getTableHeaderHeight = () => {
         return config.tableHeaderHeight;
@@ -558,8 +540,8 @@ const SchedulerWrapper = (props) => {
 
     const getSchedulerContentDesiredHeight = () => {
         let height = 0;
-        renderData.forEach((item) => {
-            if (item.render)
+        _createRenderData().forEach((item) => {
+            if (item.expanded)
                 height += item.rowHeight;
         });
         return height;
@@ -584,19 +566,18 @@ const SchedulerWrapper = (props) => {
         return slots.find((item) => (item.id === slotId))
     }
 
-    useEffect(() => {
-        // const newEvents = props.events;
-        // _validateEvents(newEvents);
-        // _generateEventGroups();
-        if (config.recurringEventsEnabled) {
-            // _handleRecurringEvents();
-        }
-        // _createRenderData();
-        console.log('UPDATING EVENTS')
-    }, [_createRenderData, _generateEventGroups, config.recurringEventsEnabled, props.events])
+    // useEffect(() => {
+    // const newEvents = props.events;
+    // _validateEvents(newEvents);
+    // _generateEventGroups();
+    // if (config.recurringEventsEnabled) {
+    //     // _handleRecurringEvents();
+    // }
+    // _createRenderData();
+    // console.log('UPDATING EVENTS')
+    // }, [_createRenderData, _generateEventGroups, config.recurringEventsEnabled, props.events])
 
     useEffect(() => {
-
         if (props.config) {
             const newConfig = {...config, ...props.config}
             setConfig(newConfig)
@@ -620,6 +601,12 @@ const SchedulerWrapper = (props) => {
         console.log('MOUNTING')
     }, [])
 
+
+    useEffect(() => {
+        console.log('CREATING RENDER DATA')
+        // _createRenderData();
+    }, [])
+
     const _compare = (event1, event2) => {
         let start1 = localeMoment(event1.start), start2 = localeMoment(event2.start);
         if (start1 !== start2) return start1 < start2 ? -1 : 1;
@@ -628,51 +615,6 @@ const SchedulerWrapper = (props) => {
         if (end1 !== end2) return end1 < end2 ? -1 : 1;
 
         return event1.id < event2.id ? -1 : 1;
-    }
-
-    const updateEventStart = (event, newStart) => {
-        // this._detachEvent(event);
-        // event.start = newStart;
-        // this._attachEvent(event);
-        // this._createRenderData();
-    }
-
-    const updateEventEnd = (event, newEnd) => {
-        // event.end = newEnd;
-        // this._createRenderData();
-    }
-
-    const moveEvent = (event, newSlotId, newSlotName, newStart, newEnd) => {
-        // this._detachEvent(event);
-        // if (this.isEventPerspective) {
-        //     event.groupId = newSlotId;
-        //     event.groupName = newSlotName;
-        // } else
-        //     event.resourceId = newSlotId;
-        // event.end = newEnd;
-        // event.start = newStart;
-        // this._attachEvent(event);
-        // this._createRenderData();
-    }
-
-    const removeEvent = (event) => {
-        // let index = this.events.indexOf(event);
-        // if (index !== -1) {
-        //     this.events.splice(index, 1);
-        //     this._createRenderData();
-        // }
-    }
-
-    const removeEventById = (eventId) => {
-        // let index = -1;
-        // this.events.forEach((item, idx) => {
-        //     if (item.id === eventId)
-        //         index = idx;
-        // })
-        // if (index !== -1) {
-        //     this.events.splice(index, 1);
-        //     this._createRenderData();
-        // }
     }
 
     const isSchedulerResponsive = () => {
@@ -757,30 +699,34 @@ const SchedulerWrapper = (props) => {
         setShowAgenda(showAgenda)
         setIsEventPerspective(isEventPerspective)
         setCellUnit(CellUnits.Day)
-        // this.showAgenda = showAgenda;
-        // this.isEventPerspective = isEventPerspective;
-        // this.cellUnit = CellUnits.Day;
 
         if (viewType !== newViewType) {
             let date = startDate;
-
             if (newViewType === ViewTypes.Custom || newViewType === ViewTypes.Custom1 || newViewType === ViewTypes.Custom2) {
                 setViewType(newViewType)
                 _resolveDate(0, date)
             } else {
                 if (viewType < newViewType) {
                     if (newViewType === ViewTypes.Week) {
-                        setStartDate(localeMoment(date).startOf('week').format(DATE_FORMAT))
-                        setEndDate(localeMoment(startDate).endOf('week').format(DATE_FORMAT))
+                        const newStartDate = localeMoment(date).startOf('week').format(DATE_FORMAT)
+                        const newEndDate = localeMoment(newStartDate).endOf('week').format(DATE_FORMAT)
+                        setStartDate(newStartDate)
+                        setEndDate(newEndDate)
                     } else if (newViewType === ViewTypes.Month) {
-                        setStartDate(localeMoment(date).startOf('month').format(DATE_FORMAT));
-                        setEndDate(localeMoment(startDate).endOf('month').format(DATE_FORMAT));
+                        const newStartDate = localeMoment(date).startOf('month').format(DATE_FORMAT)
+                        const newEndDate = localeMoment(newStartDate).endOf('month').format(DATE_FORMAT)
+                        setStartDate(newStartDate)
+                        setEndDate(newEndDate)
                     } else if (newViewType === ViewTypes.Quarter) {
-                        setStartDate(localeMoment(date).startOf('quarter').format(DATE_FORMAT));
-                        setEndDate(localeMoment(startDate).endOf('quarter').format(DATE_FORMAT));
+                        const newStartDate = localeMoment(date).startOf('quarter').format(DATE_FORMAT)
+                        const newEndDate = localeMoment(newStartDate).endOf('quarter').format(DATE_FORMAT)
+                        setStartDate(newStartDate)
+                        setEndDate(newEndDate)
                     } else if (newViewType === ViewTypes.Year) {
-                        setStartDate(localeMoment(date).startOf('year').format(DATE_FORMAT));
-                        setEndDate(localeMoment(startDate).endOf('year').format(DATE_FORMAT));
+                        const newStartDate = localeMoment(date).startOf('year').format(DATE_FORMAT)
+                        const newEndDate = localeMoment(newStartDate).endOf('year').format(DATE_FORMAT)
+                        setStartDate(newStartDate)
+                        setEndDate(newEndDate)
                     }
                 } else {
                     let start = localeMoment(startDate);
@@ -792,25 +738,29 @@ const SchedulerWrapper = (props) => {
                             date = newSelectDate;
                         }
                     }
-
                     let now = localeMoment();
                     if (now >= start && now < end) {
                         date = now.format(DATE_FORMAT);
                     }
-
                     if (newViewType === ViewTypes.Day) {
                         setStartDate(date);
-                        setEndDate(startDate)
+                        setEndDate(date)
                         setCellUnit(CellUnits.Hour)
                     } else if (newViewType === ViewTypes.Week) {
-                        setStartDate(localeMoment(date).startOf('week').format(DATE_FORMAT));
-                        setEndDate(localeMoment(startDate).endOf('week').format(DATE_FORMAT));
+                        const newStartDate = localeMoment(date).startOf('week').format(DATE_FORMAT)
+                        const newEndDate = localeMoment(newStartDate).endOf('week').format(DATE_FORMAT)
+                        setStartDate(newStartDate)
+                        setEndDate(newEndDate)
                     } else if (newViewType === ViewTypes.Month) {
-                        setStartDate(localeMoment(date).startOf('month').format(DATE_FORMAT));
-                        setEndDate(localeMoment(startDate).endOf('month').format(DATE_FORMAT));
+                        const newStartDate = localeMoment(date).startOf('month').format(DATE_FORMAT)
+                        const newEndDate = localeMoment(newStartDate).endOf('month').format(DATE_FORMAT)
+                        setStartDate(newStartDate)
+                        setEndDate(newEndDate)
                     } else if (newViewType === ViewTypes.Quarter) {
-                        setStartDate(localeMoment(date).startOf('quarter').format(DATE_FORMAT));
-                        setEndDate(localeMoment(startDate).endOf('quarter').format(DATE_FORMAT));
+                        const newStartDate = localeMoment(date).startOf('quarter').format(DATE_FORMAT)
+                        const newEndDate = localeMoment(newStartDate).endOf('quarter').format(DATE_FORMAT)
+                        setStartDate(newStartDate)
+                        setEndDate(newEndDate)
                     }
                 }
                 setViewType(newViewType)
@@ -824,70 +774,27 @@ const SchedulerWrapper = (props) => {
             }
             _setScrollToSpecialMoment(true);
         }
-
-
     }
 
     const setDate = (date) => {
         _resolveDate(0, date);
-
         if (props.onSelectDate) {
             props.onSelectDate(date)
         }
-
-        // this.events = [];
-        // this._createHeaders();
-        // this._createRenderData();
     }
 
     const prev = () => {
         _resolveDate(-1);
-        // this.events = [];
-        // this._createHeaders();
-        // this._createRenderData();
+        if (props.onPreviousClick) {
+            props.onPreviousClick(selectDate);
+        }
     }
 
     const next = () => {
         _resolveDate(1);
-        // this.events = [];
-        // this._createHeaders();
-        // this._createRenderData();
-    }
-
-    const toggleExpandStatus = (slotId) => {
-        let slotEntered = false;
-        let slotIndent = -1;
-        let isExpanded = false;
-        let expandedMap = new Map();
-        renderData.forEach((item) => {
-            if (slotEntered === false) {
-                if (item.slotId === slotId && item.hasChildren) {
-                    slotEntered = true;
-
-                    isExpanded = !item.expanded;
-                    item.expanded = isExpanded;
-                    slotIndent = item.indent;
-                    expandedMap.set(item.indent, {
-                        expanded: item.expanded,
-                        render: item.render,
-                    });
-                }
-            } else {
-                if (item.indent > slotIndent) {
-                    let expandStatus = expandedMap.get(item.indent - 1);
-                    item.render = expandStatus.expanded && expandStatus.render;
-
-                    if (item.hasChildren) {
-                        expandedMap.set(item.indent, {
-                            expanded: item.expanded,
-                            render: item.render,
-                        });
-                    }
-                } else {
-                    slotEntered = false;
-                }
-            }
-        });
+        if (props.onNextClick) {
+            props.onNextClick(selectDate);
+        }
     }
 
     const setSchedulerMaxHeight = (newSchedulerMaxHeight) => {
@@ -897,8 +804,13 @@ const SchedulerWrapper = (props) => {
         })
     }
 
-
-    // const renderData = _createRenderData()
+    const onSlotItemExpandToggle = (expanded, slotId) => {
+        const newHiddenSlots = expanded ? hiddenSlots.filter(s => s !== slotId) : [...hiddenSlots, slotId]
+        setHiddenSlots(newHiddenSlots)
+        if (props.onSlotItemExpandToggle) {
+            props.onSlotItemExpandToggle(expanded, slotId)
+        }
+    }
 
     console.log('RENDER WRAPPER')
     return (
@@ -927,7 +839,8 @@ const SchedulerWrapper = (props) => {
                 cellMaxEvents={getCellMaxEvents()}
                 minuteStepsInHour={getMinuteStepsInHour()}
                 resourceTableWidth={getResourceTableWidth()}
-                schedulerWidth={getContentTableWidth() - 1}
+                // schedulerWidth={getContentTableWidth() - 1}
+                schedulerWidth={getContentTableWidth()}
                 contentHeight={getSchedulerContentDesiredHeight()}
                 isSchedulerResponsive={isSchedulerResponsive()}
                 setDocumentWidth={_setDocumentWidth}
@@ -945,6 +858,12 @@ const SchedulerWrapper = (props) => {
                 getSlotById={getSlotById}
                 onViewChange={_setViewType}
                 onSelectDate={setDate}
+                onMoveEvent={props.onMoveEvent}
+                onCellClick={props.onCellClick}
+                onSlotItemExpandToggle={onSlotItemExpandToggle}
+
+                prevClick={prev}
+                nextClick={next}
             />
         </SchedulerContext.Provider>
     )

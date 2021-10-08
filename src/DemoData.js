@@ -18,7 +18,7 @@ const DemoData = {
         {
             id: 'r3',
             name: 'Resource3',
-            parentId: 'r1',
+            parentId: 'r1'
         },
         {
             id: 'r4',

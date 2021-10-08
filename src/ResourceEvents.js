@@ -35,7 +35,6 @@ class ResourceEvents extends Component {
         viewEventText: PropTypes.string,
         viewEvent2Click: PropTypes.func,
         viewEvent2Text: PropTypes.string,
-        newEvent: PropTypes.func,
         eventItemTemplateResolver: PropTypes.func,
     }
 
@@ -152,7 +151,7 @@ class ResourceEvents extends Component {
     stopDrag = (ev) => {
         ev.stopPropagation();
 
-        const {newEvent, resourceEvents} = this.props;
+        const {onCellClick, resourceEvents} = this.props;
         const {headers, events, config, cellUnit, localeMoment} = this.props;
         const {leftIndex, rightIndex} = this.state;
         if (supportTouch) {
@@ -212,8 +211,8 @@ class ResourceEvents extends Component {
                 console.log('Conflict occurred, set conflictOccurred func in Scheduler to handle it');
             }
         } else {
-            if (typeof newEvent !== "undefined")
-                newEvent(slotId, slotName, startTime, endTime);
+            if (typeof onCellClick !== "undefined")
+                onCellClick(slotId, slotName, startTime, endTime);
         }
     }
 
@@ -292,7 +291,7 @@ class ResourceEvents extends Component {
                 let renderEventsMaxIndex = headerItem.addMore === 0 ? cellMaxEvents : headerItem.addMoreIndex;
 
                 headerItem.events.forEach((evt, idx) => {
-                    if (idx < renderEventsMaxIndex && evt !== undefined && evt.render) {
+                    if (idx < renderEventsMaxIndex && evt !== undefined && evt.expanded) {
                         let durationStart = localeMoment(startDate);
                         let durationEnd = localeMoment(endDate).add(1, 'days');
                         if (cellUnit === CellUnits.Hour) {

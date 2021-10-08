@@ -1,10 +1,10 @@
-import React, {useState} from 'react'
+import React from 'react'
 import {PropTypes} from 'prop-types'
 import Col from 'antd/lib/col'
 import Row from 'antd/lib/row'
-import Icon from 'antd/lib/icon'
 import 'antd/lib/grid/style/index.css'
 import DnDSource from './DnDSource'
+import {CloseSquareOutlined} from "@ant-design/icons";
 
 
 const AddMorePopover = props => {
@@ -52,7 +52,9 @@ const AddMorePopover = props => {
                 <Col span="2">
                     <span onClick={() => {
                         closeAction(undefined);
-                    }}><Icon type="cross"/></span>
+                    }}>
+                        <CloseSquareOutlined />
+                    </span>
                 </Col>
             </Row>
             {eventList}

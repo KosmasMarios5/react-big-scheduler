@@ -14,7 +14,8 @@ const eventSource = {
         const item = monitor.getItem();
         const type = monitor.getItemType();
 
-        const {moveEvent, newEvent} = props;
+
+        const {onMoveEvent} = props;
         const {events, config, viewType, localeMoment} = props;
         const {getEventSlotId, getSlotById} = props
         const dropResult = monitor.getDropResult();
@@ -34,7 +35,9 @@ const eventSource = {
                     newStart = localeMoment(event.start).year(tmpMoment.year()).month(tmpMoment.month()).date(tmpMoment.date()).format(DATETIME_FORMAT);
                 }
             }
-            newEnd = localeMoment(newStart).add(localeMoment(event.end).diff(localeMoment(event.start)), 'ms').format(DATETIME_FORMAT);
+            newEnd = localeMoment(newStart)
+                .add(localeMoment(event.end).diff(localeMoment(event.start)), 'ms')
+                .format(DATETIME_FORMAT);
 
             //if crossResourceMove disabled, slot returns old value
             if (config.crossResourceMove === false) {
@@ -73,12 +76,12 @@ const eventSource = {
             }
         } else {
             if (isEvent) {
-                if (moveEvent !== undefined) {
-                    moveEvent(item, slotId, slotName, newStart, newEnd);
+                if (onMoveEvent !== undefined) {
+                    onMoveEvent(item, slotId, slotName, newStart, newEnd);
                 }
             } else {
-                if (newEvent !== undefined)
-                    newEvent(slotId, slotName, newStart, newEnd, type, item);
+                if (onMoveEvent !== undefined)
+                    onMoveEvent(slotId, slotName, newStart, newEnd, type, item);
             }
         }
     },
