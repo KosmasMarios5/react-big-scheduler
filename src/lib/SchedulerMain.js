@@ -1,27 +1,11 @@
 import React, {Component} from 'react'
 import {PropTypes} from 'prop-types'
-import Col from 'antd/lib/col'
-import Row from 'antd/lib/row'
-import Radio from 'antd/lib/radio'
-import Popover from 'antd/lib/popover'
-import Calendar from 'antd/lib/calendar'
-import DnDSource from './components/dnd/DnDSource'
 import DnDContext from './components/dnd/DnDContext'
 import ResourceView from './components/resource/ResourceView'
 import HeaderView from './components/partials/header/HeaderView'
 import BodyView from './components/partials/BodyView'
 import AgendaView from './components/agenda/AgendaView'
-import AddMorePopover from './components/addMore/AddMorePopover'
-import ViewTypes from './types/ViewTypes'
-import CellUnits from './types/CellUnits'
-import SummaryPos from './types/SummaryPos'
-import DemoData from '../DemoData'
-import 'antd/dist/antd.css';
-import "./css/style.css"
-import {LeftOutlined, RightOutlined} from "@ant-design/icons";
-
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
+import Header from "./components/header/header";
 
 class SchedulerMain extends Component {
     constructor(props) {
@@ -66,8 +50,6 @@ class SchedulerMain extends Component {
         updateEventEnd: PropTypes.func,
         moveEvent: PropTypes.func,
         movingEvent: PropTypes.func,
-        leftCustomHeader: PropTypes.object,
-        rightCustomHeader: PropTypes.object,
         newEvent: PropTypes.func,
         subtitleGetter: PropTypes.func,
         eventItemClick: PropTypes.func,
@@ -251,12 +233,11 @@ class SchedulerMain extends Component {
         });
     }
 
-    onViewChange = (e) => {
-        const {onViewChange} = this.props;
-        let viewType = parseInt(e.target.value.charAt(0));
-        let showAgenda = e.target.value.charAt(1) === '1';
-        let isEventPerspective = e.target.value.charAt(2) === '1';
-        onViewChange(viewType, showAgenda, isEventPerspective);
+    onViewChange = (item) => {
+        // let viewType = parseInt(e.target.value.charAt(0));
+        // let showAgenda = e.target.value.charAt(1) === '1';
+        // let isEventPerspective = e.target.value.charAt(2) === '1';
+        this.props.onViewChange(item.viewType, item.showAgenda, item.isEventPerspective);
     }
 
     goNext = () => {
@@ -283,17 +264,7 @@ class SchedulerMain extends Component {
     }
 
     render() {
-        const {leftCustomHeader, rightCustomHeader} = this.props;
-
         const {width, dateLabel, renderData, viewType, showAgenda, isEventPerspective, config} = this.props;
-        const calendarPopoverEnabled = config.calendarPopoverEnabled;
-
-        let defaultValue = `${viewType}${showAgenda ? 1 : 0}${isEventPerspective ? 1 : 0}`;
-        let radioButtonList = config.views.map(item => {
-            return <RadioButton key={`${item.viewType}${item.showAgenda ? 1 : 0}${item.isEventPerspective ? 1 : 0}`}
-                                value={`${item.viewType}${item.showAgenda ? 1 : 0}${item.isEventPerspective ? 1 : 0}`}><span
-                style={{margin: "0px 8px"}}>{item.viewName}</span></RadioButton>
-        })
 
         let tbodyContent = <tr/>;
         if (showAgenda) {
@@ -336,7 +307,6 @@ class SchedulerMain extends Component {
                 };
             }
 
-            let resourceName = isEventPerspective ? config.taskName : config.resourceName;
             tbodyContent = (
                 <tr>
                     <td style={{width: resourceTableWidth, verticalAlign: 'top'}}>
@@ -354,8 +324,10 @@ class SchedulerMain extends Component {
                                     <table className="resource-table">
                                         <thead>
                                         <tr style={{height: config.tableHeaderHeight}}>
-                                            <th className="header3-text">
-                                                {resourceName}
+                                            <th className="rbc-header">
+                                                <span>
+                                                    {isEventPerspective ? config.taskName : config.resourceName}
+                                                </span>
                                             </th>
                                         </tr>
                                         </thead>
@@ -434,72 +406,29 @@ class SchedulerMain extends Component {
             );
         }
 
-        let schedulerHeader = <div/>;
-        const {selectedDate} = this.props
-        if (config.headerEnabled) {
-            schedulerHeader = (
-                <Row type="flex" align="middle" justify="space-between" style={{marginBottom: '24px'}}>
-                    {leftCustomHeader}
-                    <Col>
-                        <div className='header2-text'>
-                            <LeftOutlined
-                                style={{marginRight: 8}}
-                                className="icon-nav"
-                                onClick={this.goBack}
-                            />
-                            {calendarPopoverEnabled ?
-                                <Popover
-                                    content={
-                                        <div className="popover-calendar">
-                                            <Calendar
-                                                fullscreen={false}
-                                                onSelect={this.onSelect}
-                                                value={selectedDate}
-                                            />
-                                        </div>
-                                    }
-                                    placement="bottom"
-                                    trigger="click"
-                                    visible={this.state.visible}
-                                    onVisibleChange={this.handleVisibleChange}>
-                                    <span
-                                        className={'header2-text-label'}
-                                        style={{cursor: 'pointer'}}>
-                                        {dateLabel}
-                                    </span>
-                                </Popover>
-                                : <span className={'header2-text-label'}>{dateLabel}</span>
-                            }
-                            <RightOutlined
-                                style={{marginLeft: 8}}
-                                className="icon-nav"
-                                onClick={this.goNext}
-                            />
-                        </div>
-                    </Col>
-                    <Col>
-                        <RadioGroup defaultValue={defaultValue} size="default" onChange={this.onViewChange}>
-                            {radioButtonList}
-                        </RadioGroup>
-                    </Col>
-                    {rightCustomHeader}
-                </Row>
-            );
-        }
-
         return (
-            <table id="RBS-Scheduler-root" className="scheduler" style={{width: `${width}px`}}>
-                <thead>
-                <tr>
-                    <td colSpan="2">
-                        {schedulerHeader}
-                    </td>
-                </tr>
-                </thead>
-                <tbody>
-                {tbodyContent}
-                </tbody>
-            </table>
+            <div className="rbc-scheduler">
+                {config.headerEnabled && (
+                    <Header
+                        dateLabel={dateLabel}
+                        isEventPerspective={isEventPerspective}
+                        showAgenda={showAgenda}
+                        viewType={viewType}
+                        views={config.views}
+                        messages={config.messages}
+                        onViewChange={this.onViewChange}
+                        selectedDate={this.props.selectedDate}
+
+                        goBack={this.goBack}
+                        goNext={this.goNext}
+                    />
+                )}
+                <table id="RBS-Scheduler-root" style={{width: `${width}px`}}>
+                    <tbody>
+                    {tbodyContent}
+                    </tbody>
+                </table>
+            </div>
         )
     }
 }

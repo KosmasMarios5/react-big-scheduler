@@ -17,15 +17,9 @@ var _createSuper2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/c
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _popover = _interopRequireDefault(require("antd/lib/popover"));
-
-require("antd/lib/popover/style/index.css");
-
-var _EventItemPopover = _interopRequireDefault(require("./EventItemPopover"));
-
 var _DnDTypes = require("../dnd/DnDTypes");
 
-var _index2 = require("../../index");
+var _index = require("../../index");
 
 var _CellUnits = _interopRequireDefault(require("../../types/CellUnits"));
 
@@ -200,7 +194,7 @@ var EventItem = /*#__PURE__*/function (_Component) {
       var sign = deltaX < 0 ? -1 : deltaX === 0 ? 0 : 1;
       var count = (sign > 0 ? Math.floor(Math.abs(deltaX) / cellWidth) : Math.ceil(Math.abs(deltaX) / cellWidth)) * sign;
       if (newWidth < minWidth) count = rightIndex - leftIndex - 1;else if (newWidth > maxWidth) count = -leftIndex;
-      var newStart = localeMoment(eventItem.start).add(cellUnit === _CellUnits.default.Hour ? count * config.minuteStep : count, cellUnit === _CellUnits.default.Hour ? 'minutes' : 'days').format(_index2.DATETIME_FORMAT);
+      var newStart = localeMoment(eventItem.start).add(cellUnit === _CellUnits.default.Hour ? count * config.minuteStep : count, cellUnit === _CellUnits.default.Hour ? 'minutes' : 'days').format(_index.DATETIME_FORMAT);
 
       if (count !== 0 && cellUnit !== _CellUnits.default.Hour && config.displayWeekend === false) {
         if (count > 0) {
@@ -216,7 +210,7 @@ var EventItem = /*#__PURE__*/function (_Component) {
               tempCount++;
 
               if (tempCount === count) {
-                newStart = tempStart.format(_index2.DATETIME_FORMAT);
+                newStart = tempStart.format(_index.DATETIME_FORMAT);
                 break;
               }
             }
@@ -236,7 +230,7 @@ var EventItem = /*#__PURE__*/function (_Component) {
               _tempCount--;
 
               if (_tempCount === count) {
-                newStart = _tempStart.format(_index2.DATETIME_FORMAT);
+                newStart = _tempStart.format(_index.DATETIME_FORMAT);
                 break;
               }
             }
@@ -451,7 +445,7 @@ var EventItem = /*#__PURE__*/function (_Component) {
       var sign = deltaX < 0 ? -1 : deltaX === 0 ? 0 : 1;
       var count = (sign < 0 ? Math.floor(Math.abs(deltaX) / cellWidth) : Math.ceil(Math.abs(deltaX) / cellWidth)) * sign;
       if (newWidth < minWidth) count = leftIndex - rightIndex + 1;else if (newWidth > maxWidth) count = headers.length - rightIndex;
-      var newEnd = localeMoment(eventItem.end).add(cellUnit === _CellUnits.default.Hour ? count * config.minuteStep : count, cellUnit === _CellUnits.default.Hour ? 'minutes' : 'days').format(_index2.DATETIME_FORMAT);
+      var newEnd = localeMoment(eventItem.end).add(cellUnit === _CellUnits.default.Hour ? count * config.minuteStep : count, cellUnit === _CellUnits.default.Hour ? 'minutes' : 'days').format(_index.DATETIME_FORMAT);
 
       if (count !== 0 && cellUnit !== _CellUnits.default.Hour && config.displayWeekend === false) {
         if (count > 0) {
@@ -467,7 +461,7 @@ var EventItem = /*#__PURE__*/function (_Component) {
               tempCount++;
 
               if (tempCount === count) {
-                newEnd = tempEnd.format(_index2.DATETIME_FORMAT);
+                newEnd = tempEnd.format(_index.DATETIME_FORMAT);
                 break;
               }
             }
@@ -487,7 +481,7 @@ var EventItem = /*#__PURE__*/function (_Component) {
               _tempCount2--;
 
               if (_tempCount2 === count) {
-                newEnd = _tempEnd.format(_index2.DATETIME_FORMAT);
+                newEnd = _tempEnd.format(_index.DATETIME_FORMAT);
                 break;
               }
             }
@@ -559,16 +553,14 @@ var EventItem = /*#__PURE__*/function (_Component) {
 
     _this.startResizable = function (props) {
       var eventItem = props.eventItem,
-          isInPopover = props.isInPopover,
           config = props.config;
-      return config.startResizable === true && isInPopover === false && (eventItem.resizable == undefined || eventItem.resizable !== false) && (eventItem.startResizable == undefined || eventItem.startResizable !== false);
+      return config.startResizable === true && (eventItem.resizable == undefined || eventItem.resizable !== false) && (eventItem.startResizable == undefined || eventItem.startResizable !== false);
     };
 
     _this.endResizable = function (props) {
       var eventItem = props.eventItem,
-          isInPopover = props.isInPopover,
           config = props.config;
-      return config.endResizable === true && isInPopover === false && (eventItem.resizable == undefined || eventItem.resizable !== false) && (eventItem.endResizable == undefined || eventItem.endResizable !== false);
+      return config.endResizable === true && (eventItem.resizable == undefined || eventItem.resizable !== false) && (eventItem.endResizable == undefined || eventItem.endResizable !== false);
     };
 
     _this.subscribeResizeEvent = function (props) {
@@ -639,7 +631,6 @@ var EventItem = /*#__PURE__*/function (_Component) {
           eventItem = _this$props12.eventItem,
           isStart = _this$props12.isStart,
           isEnd = _this$props12.isEnd,
-          isInPopover = _this$props12.isInPopover,
           eventItemClick = _this$props12.eventItemClick,
           isDragging = _this$props12.isDragging,
           connectDragSource = _this$props12.connectDragSource,
@@ -647,30 +638,16 @@ var EventItem = /*#__PURE__*/function (_Component) {
           eventItemTemplateResolver = _this$props12.eventItemTemplateResolver;
       var _this$props13 = this.props,
           config = _this$props13.config,
-          localeMoment = _this$props13.localeMoment,
           behaviors = _this$props13.behaviors,
           resources = _this$props13.resources,
-          isEventPerspective = _this$props13.isEventPerspective,
-          isResizing = _this$props13.isResizing;
+          isEventPerspective = _this$props13.isEventPerspective;
       var _this$state = this.state,
           left = _this$state.left,
           width = _this$state.width,
           top = _this$state.top;
-      var roundCls = isStart ? isEnd ? 'round-all' : 'round-head' : isEnd ? 'round-tail' : 'round-none';
       var bgColor = config.defaultEventBgColor;
       if (!!eventItem.bgColor) bgColor = eventItem.bgColor;
-      var titleText = behaviors.getEventTextFunc(eventItem, resources, isEventPerspective);
-
-      var content = /*#__PURE__*/_react.default.createElement(_EventItemPopover.default, Object.assign({}, this.props, {
-        eventItem: eventItem,
-        title: eventItem.title,
-        startTime: eventItem.start,
-        endTime: eventItem.end,
-        statusColor: bgColor
-      }));
-
-      var start = localeMoment(eventItem.start);
-      var eventTitle = isInPopover ? "".concat(start.format('HH:mm'), " ").concat(titleText) : titleText;
+      var eventTitle = behaviors.getEventTextFunc(eventItem, resources, isEventPerspective);
 
       var startResizeDiv = /*#__PURE__*/_react.default.createElement("div", null);
 
@@ -691,18 +668,12 @@ var EventItem = /*#__PURE__*/function (_Component) {
       });
 
       var eventItemTemplate = /*#__PURE__*/_react.default.createElement("div", {
-        className: roundCls + ' event-item',
+        className: 'rbc-event',
         key: eventItem.id,
         style: {
-          height: config.eventItemHeight,
           backgroundColor: bgColor
         }
-      }, /*#__PURE__*/_react.default.createElement("span", {
-        style: {
-          marginLeft: '10px',
-          lineHeight: "".concat(config.eventItemHeight, "px")
-        }
-      }, eventTitle));
+      }, /*#__PURE__*/_react.default.createElement("span", null, eventTitle));
 
       if (typeof eventItemTemplateResolver !== "undefined") eventItemTemplate = eventItemTemplateResolver(eventItem, bgColor, isStart, isEnd, 'event-item', config.eventItemHeight, undefined);
 
@@ -718,11 +689,7 @@ var EventItem = /*#__PURE__*/function (_Component) {
         }
       }, eventItemTemplate, startResizeDiv, endResizeDiv);
 
-      return isDragging ? null : isResizing || config.eventItemPopoverEnabled === false || eventItem.showPopover === false ? /*#__PURE__*/_react.default.createElement("div", null, connectDragPreview(connectDragSource(a))) : /*#__PURE__*/_react.default.createElement(_popover.default, {
-        placement: "bottomLeft",
-        content: content,
-        trigger: "hover"
-      }, connectDragPreview(connectDragSource(a)));
+      return isDragging ? null : /*#__PURE__*/_react.default.createElement("div", null, connectDragPreview(connectDragSource(a)));
     }
   }]);
   return EventItem;

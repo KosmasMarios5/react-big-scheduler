@@ -71,6 +71,10 @@ var _default = {
   nonAgendaDayCellHeaderFormat: 'ha',
   nonAgendaOtherCellHeaderFormat: 'ddd M/D',
   minuteStep: 30,
+  messages: {
+    previous: 'Previous',
+    next: 'Next'
+  },
   views: [{
     viewName: 'Day',
     viewType: _ViewTypes.default.Day,

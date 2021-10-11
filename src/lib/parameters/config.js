@@ -69,7 +69,10 @@ export default {
     nonAgendaOtherCellHeaderFormat: 'ddd M/D',
 
     minuteStep: 30,
-
+    messages: {
+        previous: 'Previous',
+        next: 'Next',
+    },
     views: [
         {viewName: 'Day', viewType: ViewTypes.Day, showAgenda: false, isEventPerspective: false},
         {viewName: 'Week', viewType: ViewTypes.Week, showAgenda: false, isEventPerspective: false},

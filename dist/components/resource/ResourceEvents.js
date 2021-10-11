@@ -17,10 +17,6 @@ var _createSuper2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/c
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _AddMore = _interopRequireDefault(require("../addMore/AddMore"));
-
-var _Summary = _interopRequireDefault(require("../summary/Summary"));
-
 var _SelectedArea = _interopRequireDefault(require("./SelectedArea"));
 
 var _Util = require("../../helpers/Util");
@@ -240,33 +236,6 @@ var ResourceEvents = /*#__PURE__*/function (_Component) {
       }
     };
 
-    _this.onAddMoreClick = function (headerItem) {
-      var _this$props5 = _this.props,
-          onSetAddMoreState = _this$props5.onSetAddMoreState,
-          resourceEvents = _this$props5.resourceEvents,
-          config = _this$props5.config,
-          contentCellWidth = _this$props5.contentCellWidth;
-
-      if (!!onSetAddMoreState) {
-        var cellWidth = contentCellWidth;
-        var index = resourceEvents.headerItems.indexOf(headerItem);
-
-        if (index !== -1) {
-          var left = index * (cellWidth - 1);
-          var pos = (0, _Util.getPos)(_this.eventContainer);
-          left = left + pos.x;
-          var top = pos.y;
-          var height = (headerItem.count + 1) * config.eventItemLineHeight + 20;
-          onSetAddMoreState({
-            headerItem: headerItem,
-            left: left,
-            top: top,
-            height: height
-          });
-        }
-      }
-    };
-
     _this.eventContainerRef = function (element) {
       _this.eventContainer = element;
     };
@@ -304,18 +273,18 @@ var ResourceEvents = /*#__PURE__*/function (_Component) {
     value: function render() {
       var _this2 = this;
 
+      var _this$props5 = this.props,
+          resourceEvents = _this$props5.resourceEvents,
+          connectDropTarget = _this$props5.connectDropTarget;
       var _this$props6 = this.props,
-          resourceEvents = _this$props6.resourceEvents,
-          connectDropTarget = _this$props6.connectDropTarget;
-      var _this$props7 = this.props,
-          cellUnit = _this$props7.cellUnit,
-          startDate = _this$props7.startDate,
-          endDate = _this$props7.endDate,
-          config = _this$props7.config,
-          localeMoment = _this$props7.localeMoment,
-          contentCellWidth = _this$props7.contentCellWidth,
-          cellMaxEvents = _this$props7.cellMaxEvents,
-          schedulerWidth = _this$props7.schedulerWidth;
+          cellUnit = _this$props6.cellUnit,
+          startDate = _this$props6.startDate,
+          endDate = _this$props6.endDate,
+          config = _this$props6.config,
+          localeMoment = _this$props6.localeMoment,
+          contentCellWidth = _this$props6.contentCellWidth,
+          cellMaxEvents = _this$props6.cellMaxEvents,
+          schedulerWidth = _this$props6.schedulerWidth;
       var _this$state2 = this.state,
           isSelecting = _this$state2.isSelecting,
           left = _this$state2.left,
@@ -369,47 +338,6 @@ var ResourceEvents = /*#__PURE__*/function (_Component) {
               eventList.push(eventItem);
             }
           });
-
-          if (headerItem.addMore > 0) {
-            var _left2 = index * cellWidth + (index > 0 ? 2 : 3);
-
-            var _width2 = cellWidth - (index > 0 ? 5 : 6);
-
-            var top = marginTop + headerItem.addMoreIndex * config.eventItemLineHeight;
-
-            var addMoreItem = /*#__PURE__*/_react.default.createElement(_AddMore.default, Object.assign({}, _this2.props, {
-              key: headerItem.time,
-              headerItem: headerItem,
-              number: headerItem.addMore,
-              left: _left2,
-              width: _width2,
-              top: top,
-              clickAction: _this2.onAddMoreClick
-            }));
-
-            eventList.push(addMoreItem);
-          }
-
-          if (typeof headerItem.summary !== "undefined") {
-            var _top = isTop ? 1 : resourceEvents.rowHeight - config.eventItemLineHeight + 1;
-
-            var _left3 = index * cellWidth + (index > 0 ? 2 : 3);
-
-            var _width3 = cellWidth - (index > 0 ? 5 : 6);
-
-            var key = "".concat(resourceEvents.slotId, "_").concat(headerItem.time);
-
-            var summary = /*#__PURE__*/_react.default.createElement(_Summary.default, {
-              key: key,
-              config: config,
-              summary: headerItem.summary,
-              left: _left3,
-              width: _width3,
-              top: _top
-            });
-
-            eventList.push(summary);
-          }
         }
       });
       return /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", {

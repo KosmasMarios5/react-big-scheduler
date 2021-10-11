@@ -19,18 +19,6 @@ var _createSuper2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/c
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _col = _interopRequireDefault(require("antd/lib/col"));
-
-var _row = _interopRequireDefault(require("antd/lib/row"));
-
-var _radio = _interopRequireDefault(require("antd/lib/radio"));
-
-var _popover = _interopRequireDefault(require("antd/lib/popover"));
-
-var _calendar = _interopRequireDefault(require("antd/lib/calendar"));
-
-var _DnDSource = _interopRequireDefault(require("./components/dnd/DnDSource"));
-
 var _DnDContext = _interopRequireDefault(require("./components/dnd/DnDContext"));
 
 var _ResourceView = _interopRequireDefault(require("./components/resource/ResourceView"));
@@ -41,28 +29,11 @@ var _BodyView = _interopRequireDefault(require("./components/partials/BodyView")
 
 var _AgendaView = _interopRequireDefault(require("./components/agenda/AgendaView"));
 
-var _AddMorePopover = _interopRequireDefault(require("./components/addMore/AddMorePopover"));
-
-var _ViewTypes = _interopRequireDefault(require("./types/ViewTypes"));
-
-var _CellUnits = _interopRequireDefault(require("./types/CellUnits"));
-
-var _SummaryPos = _interopRequireDefault(require("./types/SummaryPos"));
-
-var _DemoData = _interopRequireDefault(require("../DemoData"));
-
-require("antd/dist/antd.css");
-
-require("./css/style.css");
-
-var _icons = require("@ant-design/icons");
+var _header = _interopRequireDefault(require("./components/header/header"));
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-var RadioButton = _radio.default.Button;
-var RadioGroup = _radio.default.Group;
 
 var SchedulerMain = /*#__PURE__*/function (_Component) {
   (0, _inherits2.default)(SchedulerMain, _Component);
@@ -234,12 +205,11 @@ var SchedulerMain = /*#__PURE__*/function (_Component) {
       });
     };
 
-    _this.onViewChange = function (e) {
-      var onViewChange = _this.props.onViewChange;
-      var viewType = parseInt(e.target.value.charAt(0));
-      var showAgenda = e.target.value.charAt(1) === '1';
-      var isEventPerspective = e.target.value.charAt(2) === '1';
-      onViewChange(viewType, showAgenda, isEventPerspective);
+    _this.onViewChange = function (item) {
+      // let viewType = parseInt(e.target.value.charAt(0));
+      // let showAgenda = e.target.value.charAt(1) === '1';
+      // let isEventPerspective = e.target.value.charAt(2) === '1';
+      _this.props.onViewChange(item.viewType, item.showAgenda, item.isEventPerspective);
     };
 
     _this.goNext = function () {
@@ -329,37 +299,22 @@ var SchedulerMain = /*#__PURE__*/function (_Component) {
       var _this2 = this;
 
       var _this$props3 = this.props,
-          leftCustomHeader = _this$props3.leftCustomHeader,
-          rightCustomHeader = _this$props3.rightCustomHeader;
-      var _this$props4 = this.props,
-          width = _this$props4.width,
-          dateLabel = _this$props4.dateLabel,
-          renderData = _this$props4.renderData,
-          viewType = _this$props4.viewType,
-          showAgenda = _this$props4.showAgenda,
-          isEventPerspective = _this$props4.isEventPerspective,
-          config = _this$props4.config;
-      var calendarPopoverEnabled = config.calendarPopoverEnabled;
-      var defaultValue = "".concat(viewType).concat(showAgenda ? 1 : 0).concat(isEventPerspective ? 1 : 0);
-      var radioButtonList = config.views.map(function (item) {
-        return /*#__PURE__*/_react.default.createElement(RadioButton, {
-          key: "".concat(item.viewType).concat(item.showAgenda ? 1 : 0).concat(item.isEventPerspective ? 1 : 0),
-          value: "".concat(item.viewType).concat(item.showAgenda ? 1 : 0).concat(item.isEventPerspective ? 1 : 0)
-        }, /*#__PURE__*/_react.default.createElement("span", {
-          style: {
-            margin: "0px 8px"
-          }
-        }, item.viewName));
-      });
+          width = _this$props3.width,
+          dateLabel = _this$props3.dateLabel,
+          renderData = _this$props3.renderData,
+          viewType = _this$props3.viewType,
+          showAgenda = _this$props3.showAgenda,
+          isEventPerspective = _this$props3.isEventPerspective,
+          config = _this$props3.config;
 
       var tbodyContent = /*#__PURE__*/_react.default.createElement("tr", null);
 
       if (showAgenda) {
         tbodyContent = /*#__PURE__*/_react.default.createElement(_AgendaView.default, this.props);
       } else {
-        var _this$props5 = this.props,
-            resourceTableWidth = _this$props5.resourceTableWidth,
-            schedulerWidth = _this$props5.schedulerWidth;
+        var _this$props4 = this.props,
+            resourceTableWidth = _this$props4.resourceTableWidth,
+            schedulerWidth = _this$props4.schedulerWidth;
         var schedulerContainerWidth = width - resourceTableWidth + 1;
         var contentScrollbarHeight = this.state.contentScrollbarHeight,
             contentScrollbarWidth = this.state.contentScrollbarWidth,
@@ -390,7 +345,6 @@ var SchedulerMain = /*#__PURE__*/function (_Component) {
           });
         }
 
-        var resourceName = isEventPerspective ? config.taskName : config.resourceName;
         tbodyContent = /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", {
           style: {
             width: resourceTableWidth,
@@ -417,8 +371,8 @@ var SchedulerMain = /*#__PURE__*/function (_Component) {
             height: config.tableHeaderHeight
           }
         }, /*#__PURE__*/_react.default.createElement("th", {
-          className: "header3-text"
-        }, resourceName)))))), /*#__PURE__*/_react.default.createElement("div", {
+          className: "rbc-header"
+        }, /*#__PURE__*/_react.default.createElement("span", null, isEventPerspective ? config.taskName : config.resourceName))))))), /*#__PURE__*/_react.default.createElement("div", {
           style: resourceContentStyle,
           ref: this.schedulerResourceRef,
           onMouseOver: this.onSchedulerResourceMouseOver,
@@ -487,67 +441,25 @@ var SchedulerMain = /*#__PURE__*/function (_Component) {
         }, /*#__PURE__*/_react.default.createElement(_BodyView.default, this.props))))))));
       }
 
-      var schedulerHeader = /*#__PURE__*/_react.default.createElement("div", null);
-
-      var selectedDate = this.props.selectedDate;
-
-      if (config.headerEnabled) {
-        schedulerHeader = /*#__PURE__*/_react.default.createElement(_row.default, {
-          type: "flex",
-          align: "middle",
-          justify: "space-between",
-          style: {
-            marginBottom: '24px'
-          }
-        }, leftCustomHeader, /*#__PURE__*/_react.default.createElement(_col.default, null, /*#__PURE__*/_react.default.createElement("div", {
-          className: "header2-text"
-        }, /*#__PURE__*/_react.default.createElement(_icons.LeftOutlined, {
-          style: {
-            marginRight: 8
-          },
-          className: "icon-nav",
-          onClick: this.goBack
-        }), calendarPopoverEnabled ? /*#__PURE__*/_react.default.createElement(_popover.default, {
-          content: /*#__PURE__*/_react.default.createElement("div", {
-            className: "popover-calendar"
-          }, /*#__PURE__*/_react.default.createElement(_calendar.default, {
-            fullscreen: false,
-            onSelect: this.onSelect,
-            value: selectedDate
-          })),
-          placement: "bottom",
-          trigger: "click",
-          visible: this.state.visible,
-          onVisibleChange: this.handleVisibleChange
-        }, /*#__PURE__*/_react.default.createElement("span", {
-          className: 'header2-text-label',
-          style: {
-            cursor: 'pointer'
-          }
-        }, dateLabel)) : /*#__PURE__*/_react.default.createElement("span", {
-          className: 'header2-text-label'
-        }, dateLabel), /*#__PURE__*/_react.default.createElement(_icons.RightOutlined, {
-          style: {
-            marginLeft: 8
-          },
-          className: "icon-nav",
-          onClick: this.goNext
-        }))), /*#__PURE__*/_react.default.createElement(_col.default, null, /*#__PURE__*/_react.default.createElement(RadioGroup, {
-          defaultValue: defaultValue,
-          size: "default",
-          onChange: this.onViewChange
-        }, radioButtonList)), rightCustomHeader);
-      }
-
-      return /*#__PURE__*/_react.default.createElement("table", {
+      return /*#__PURE__*/_react.default.createElement("div", {
+        className: "rbc-scheduler"
+      }, config.headerEnabled && /*#__PURE__*/_react.default.createElement(_header.default, {
+        dateLabel: dateLabel,
+        isEventPerspective: isEventPerspective,
+        showAgenda: showAgenda,
+        viewType: viewType,
+        views: config.views,
+        messages: config.messages,
+        onViewChange: this.onViewChange,
+        selectedDate: this.props.selectedDate,
+        goBack: this.goBack,
+        goNext: this.goNext
+      }), /*#__PURE__*/_react.default.createElement("table", {
         id: "RBS-Scheduler-root",
-        className: "scheduler",
         style: {
           width: "".concat(width, "px")
         }
-      }, /*#__PURE__*/_react.default.createElement("thead", null, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", {
-        colSpan: "2"
-      }, schedulerHeader))), /*#__PURE__*/_react.default.createElement("tbody", null, tbodyContent));
+      }, /*#__PURE__*/_react.default.createElement("tbody", null, tbodyContent)));
     }
   }]);
   return SchedulerMain;

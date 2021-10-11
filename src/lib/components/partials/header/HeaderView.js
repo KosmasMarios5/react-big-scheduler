@@ -40,7 +40,7 @@ const HeaderView = props => {
                     ));
 
                     element = (
-                        <th key={item.time} className="header3-text" style={style}>
+                        <th key={item.time} className="rbc-header" style={style}>
                             <div>
                                 {pList}
                             </div>
@@ -76,7 +76,7 @@ const HeaderView = props => {
             ));
 
             return (
-                <th key={item.time} className="header3-text" style={style}>
+                <th key={item.time} className="rbc-header" style={style}>
                     <div>
                         {pList}
                     </div>

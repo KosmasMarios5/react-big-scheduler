@@ -1,7 +1,5 @@
 import React, {Component} from 'react'
 import {PropTypes} from 'prop-types'
-import AddMore from '../addMore/AddMore'
-import Summary from '../summary/Summary'
 import SelectedArea from './SelectedArea'
 import {getPos} from '../../helpers/Util'
 import {DnDTypes} from '../dnd/DnDTypes'
@@ -232,28 +230,6 @@ class ResourceEvents extends Component {
         }
     }
 
-    onAddMoreClick = (headerItem) => {
-        const {onSetAddMoreState, resourceEvents, config, contentCellWidth} = this.props;
-        if (!!onSetAddMoreState) {
-            let cellWidth = contentCellWidth;
-            let index = resourceEvents.headerItems.indexOf(headerItem);
-            if (index !== -1) {
-                let left = index * (cellWidth - 1);
-                let pos = getPos(this.eventContainer);
-                left = left + pos.x;
-                let top = pos.y;
-                let height = (headerItem.count + 1) * config.eventItemLineHeight + 20;
-
-                onSetAddMoreState({
-                    headerItem: headerItem,
-                    left: left,
-                    top: top,
-                    height: height
-                });
-            }
-        }
-    }
-
     eventContainerRef = (element) => {
         this.eventContainer = element;
     }
@@ -318,33 +294,6 @@ class ResourceEvents extends Component {
                         eventList.push(eventItem);
                     }
                 });
-
-                if (headerItem.addMore > 0) {
-                    let left = index * cellWidth + (index > 0 ? 2 : 3);
-                    let width = cellWidth - (index > 0 ? 5 : 6);
-                    let top = marginTop + headerItem.addMoreIndex * config.eventItemLineHeight;
-                    let addMoreItem = <AddMore
-                        {...this.props}
-                        key={headerItem.time}
-                        headerItem={headerItem}
-                        number={headerItem.addMore}
-                        left={left}
-                        width={width}
-                        top={top}
-                        clickAction={this.onAddMoreClick}
-                    />;
-                    eventList.push(addMoreItem);
-                }
-
-                if (typeof headerItem.summary !== "undefined") {
-                    let top = isTop ? 1 : resourceEvents.rowHeight - config.eventItemLineHeight + 1;
-                    let left = index * cellWidth + (index > 0 ? 2 : 3);
-                    let width = cellWidth - (index > 0 ? 5 : 6);
-                    let key = `${resourceEvents.slotId}_${headerItem.time}`;
-                    let summary = <Summary key={key} config={config} summary={headerItem.summary} left={left}
-                                           width={width} top={top}/>;
-                    eventList.push(summary);
-                }
             }
         });
 

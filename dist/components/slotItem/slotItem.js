@@ -11,7 +11,6 @@ var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/esm/
 
 var _react = _interopRequireDefault(require("react"));
 
-// import {MinusSquareOutlined, PlusSquareOutlined} from "@ant-design/icons";
 var SlotItem = function SlotItem(props) {
   var item = props.item,
       slotClickedFunc = props.slotClickedFunc,
@@ -25,22 +24,7 @@ var SlotItem = function SlotItem(props) {
       key: "es".concat(i),
       className: "expander-space"
     }));
-  } // let indent = <span key={`es${item.indent}`} className="expander-space"/>;
-  // if (item.hasChildren) {
-  //     indent = item.expanded ? (
-  //         <MinusSquareOutlined
-  //             key={`es${item.indent}`}
-  //             onClick={() => onSlotItemExpandToggle(!item.expanded, item.slotId)}
-  //         />
-  //     ) : (
-  //         <PlusSquareOutlined
-  //             key={`es${item.indent}`}
-  //             onClick={() => onSlotItemExpandToggle(!item.expanded, item.slotId)}
-  //         />
-  //     );
-  // }
-  // indents.push(indent);
-
+  }
 
   var a = typeof slotClickedFunc !== "undefined" ? /*#__PURE__*/_react.default.createElement("span", {
     className: "slot-cell"
@@ -57,7 +41,7 @@ var SlotItem = function SlotItem(props) {
 
   var slotItem = /*#__PURE__*/_react.default.createElement("div", {
     title: item.slotName,
-    className: "overflow-text header2-text",
+    className: "overflow-text",
     style: {
       textAlign: "left"
     }

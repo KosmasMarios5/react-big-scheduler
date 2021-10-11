@@ -56,7 +56,7 @@ var HeaderView = function HeaderView(props) {
           });
           element = /*#__PURE__*/_react.default.createElement("th", {
             key: item.time,
-            className: "header3-text",
+            className: "rbc-header",
             style: style
           }, /*#__PURE__*/_react.default.createElement("div", null, pList));
         }
@@ -93,7 +93,7 @@ var HeaderView = function HeaderView(props) {
       });
       return /*#__PURE__*/_react.default.createElement("th", {
         key: item.time,
-        className: "header3-text",
+        className: "rbc-header",
         style: style
       }, /*#__PURE__*/_react.default.createElement("div", null, pList));
     });

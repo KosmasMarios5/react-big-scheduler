@@ -1,8 +1,5 @@
 import React, {Component} from 'react'
 import {PropTypes} from 'prop-types'
-import Popover from 'antd/lib/popover'
-import 'antd/lib/popover/style/index.css'
-import EventItemPopover from './EventItemPopover'
 import {DnDTypes} from '../dnd/DnDTypes'
 import {DATETIME_FORMAT} from "../../index";
 import CellUnits from "../../types/CellUnits";
@@ -30,7 +27,6 @@ class EventItem extends Component {
         left: PropTypes.number.isRequired,
         width: PropTypes.number.isRequired,
         top: PropTypes.number.isRequired,
-        isInPopover: PropTypes.bool.isRequired,
         leftIndex: PropTypes.number.isRequired,
         rightIndex: PropTypes.number.isRequired,
         isDragging: PropTypes.bool.isRequired,
@@ -497,7 +493,6 @@ class EventItem extends Component {
             eventItem,
             isStart,
             isEnd,
-            isInPopover,
             eventItemClick,
             isDragging,
             connectDragSource,
@@ -505,27 +500,14 @@ class EventItem extends Component {
             eventItemTemplateResolver
         } = this.props;
 
-        const {config, localeMoment, behaviors, resources, isEventPerspective, isResizing} = this.props;
+        const {config, behaviors, resources, isEventPerspective} = this.props;
 
         const {left, width, top} = this.state;
-        let roundCls = isStart ? (isEnd ? 'round-all' : 'round-head') : (isEnd ? 'round-tail' : 'round-none');
         let bgColor = config.defaultEventBgColor;
         if (!!eventItem.bgColor)
             bgColor = eventItem.bgColor;
 
-        let titleText = behaviors.getEventTextFunc(eventItem, resources, isEventPerspective);
-        let content = (
-            <EventItemPopover
-                {...this.props}
-                eventItem={eventItem}
-                title={eventItem.title}
-                startTime={eventItem.start}
-                endTime={eventItem.end}
-                statusColor={bgColor}/>
-        );
-
-        let start = localeMoment(eventItem.start);
-        let eventTitle = isInPopover ? `${start.format('HH:mm')} ${titleText}` : titleText;
+        let eventTitle = behaviors.getEventTextFunc(eventItem, resources, isEventPerspective);
         let startResizeDiv = <div/>;
         if (this.startResizable(this.props))
             startResizeDiv =
@@ -535,9 +517,12 @@ class EventItem extends Component {
             endResizeDiv = <div className="event-resizer event-end-resizer" ref={(ref) => this.endResizer = ref}/>;
 
         let eventItemTemplate = (
-            <div className={roundCls + ' event-item'} key={eventItem.id}
-                 style={{height: config.eventItemHeight, backgroundColor: bgColor}}>
-                <span style={{marginLeft: '10px', lineHeight: `${config.eventItemHeight}px`}}>{eventTitle}</span>
+            <div
+                className={'rbc-event'}
+                key={eventItem.id}
+                style={{backgroundColor: bgColor}}
+            >
+                <span>{eventTitle}</span>
             </div>
         );
         if (typeof eventItemTemplateResolver !== "undefined")
@@ -552,35 +537,23 @@ class EventItem extends Component {
         </a>;
 
         return (
-            isDragging ? null : (isResizing || config.eventItemPopoverEnabled === false || eventItem.showPopover === false ?
-                    <div>
-                        {
-                            connectDragPreview(
-                                connectDragSource(a)
-                            )
-                        }
-                    </div> :
-                    <Popover placement="bottomLeft" content={content} trigger="hover">
-                        {
-                            connectDragPreview(
-                                connectDragSource(a)
-                            )
-                        }
-                    </Popover>
-            )
+            isDragging ? null :
+                <div>
+                    {connectDragPreview(connectDragSource(a))}
+                </div>
         );
     }
 
     startResizable = (props) => {
-        const {eventItem, isInPopover, config} = props;
-        return config.startResizable === true && isInPopover === false
+        const {eventItem, config} = props;
+        return config.startResizable === true
             && (eventItem.resizable == undefined || eventItem.resizable !== false)
             && (eventItem.startResizable == undefined || eventItem.startResizable !== false);
     }
 
     endResizable = (props) => {
-        const {eventItem, isInPopover, config} = props;
-        return config.endResizable === true && isInPopover === false
+        const {eventItem, config} = props;
+        return config.endResizable === true
             && (eventItem.resizable == undefined || eventItem.resizable !== false)
             && (eventItem.endResizable == undefined || eventItem.endResizable !== false);
     }

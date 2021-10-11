@@ -3,13 +3,21 @@ import React, {Component} from 'react'
 
 import Scheduler, {ViewTypes} from "./lib";
 import moment from "moment";
+import "./lib/css/style.css"
+import 'moment/locale/el';
 import DemoData from "./DemoData";
+
+
 
 class Basic extends Component {
 
     state = {
         events: DemoData.events,
         resources: DemoData.resources
+    }
+
+    componentDidMount() {
+        moment.locale("el")
     }
 
     prevClick = () => {
