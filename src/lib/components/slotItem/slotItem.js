@@ -16,7 +16,7 @@ const SlotItem = props => {
 
     let a = typeof slotClickedFunc !== "undefined" ?
         <span className="slot-cell">{indents}
-            <a className="slot-text" onClick={() => slotClickedFunc(item)}>{item.slotName}</a></span>
+            <span style={{cursor: "pointer"}} className="slot-text" onClick={() => slotClickedFunc(item)}>{item.slotName}</span></span>
         : <span className="slot-cell">{indents}<span className="slot-text">{item.slotName}</span></span>;
     let slotItem = (
         <div title={item.slotName} className="overflow-text" style={{textAlign: "left"}}>

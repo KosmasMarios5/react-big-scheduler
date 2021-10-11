@@ -528,18 +528,17 @@ class EventItem extends Component {
         if (typeof eventItemTemplateResolver !== "undefined")
             eventItemTemplate = eventItemTemplateResolver(eventItem, bgColor, isStart, isEnd, 'event-item', config.eventItemHeight, undefined);
 
-        let a = <a className="timeline-event" style={{left: left, width: width, top: top}} onClick={() => {
-            if (!!eventItemClick) eventItemClick(eventItem);
-        }}>
-            {eventItemTemplate}
-            {startResizeDiv}
-            {endResizeDiv}
-        </a>;
-
-        return (
-            isDragging ? null :
+        return (isDragging ? null :
                 <div>
-                    {connectDragPreview(connectDragSource(a))}
+                    {connectDragPreview(connectDragSource((
+                        <div className="timeline-event" style={{left: left, width: width, top: top}} onClick={() => {
+                            if (!!eventItemClick) eventItemClick(eventItem);
+                        }}>
+                            {eventItemTemplate}
+                            {startResizeDiv}
+                            {endResizeDiv}
+                        </div>
+                    )))}
                 </div>
         );
     }

@@ -219,6 +219,7 @@ table.scheduler-table tr:last-child td {
 
 .selected-area {
   position: absolute;
+  z-index: -1;
 }
 
 .slot-cell {

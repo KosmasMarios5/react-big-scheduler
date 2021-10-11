@@ -1,23 +1,31 @@
 /* eslint-disable no-restricted-globals */
 import React, {Component} from 'react'
 
-import Scheduler, {ViewTypes} from "./lib";
+import Scheduler, {DATE_FORMAT, ViewTypes} from "./lib";
 import moment from "moment";
 import "./lib/css/style.css"
 import 'moment/locale/el';
 import DemoData from "./DemoData";
 
 
-
 class Basic extends Component {
+
 
     state = {
         events: DemoData.events,
-        resources: DemoData.resources
+        resources: DemoData.resources,
+        date: Date.parse('04 Dec 2017 00:12:00 GMT')
     }
 
     componentDidMount() {
         moment.locale("el")
+        console.log(this.state.date)
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.date !== prevState.date) {
+            console.log(this.state.date)
+        }
     }
 
     prevClick = () => {
@@ -29,41 +37,36 @@ class Basic extends Component {
     onViewChange = (view) => {
     }
 
-    eventClicked = (event) => {
-        alert(`You just clicked an event: {id: ${event.id}, title: ${event.title}}`);
-    };
-
-    ops1 = (event) => {
-        alert(`You just executed ops1 to event: {id: ${event.id}, title: ${event.title}}`);
-    };
-
-    ops2 = (event) => {
-        alert(`You just executed ops2 to event: {id: ${event.id}, title: ${event.title}}`);
-    };
-
     onCellClick = (slotId, slotName, start, end, type, item) => {
-        if (confirm(`Do you want to create a new event? {slotId: ${slotId}, slotName: ${slotName}, start: ${start}, end: ${end}, type: ${type}, item: ${item}}`)) {
-            const {events} = this.state;
-            let newFreshId = 0;
-            events.forEach((item) => {
-                if (item.id >= newFreshId)
-                    newFreshId = item.id + 1;
-            });
-            let newEvent = {
-                id: newFreshId,
-                title: 'New event you just created',
-                start: start,
-                end: end,
-                resourceId: slotId,
-                bgColor: 'purple'
-            }
-            this.setState({
-                events: [
-                    ...events,
-                    newEvent
-                ]
-            })
-        }
+
+        this.setState({
+            date: Date.parse(start)
+        })
+        // if (confirm(`Do you want to create a new event? {slotId: ${slotId}, slotName: ${slotName}, start: ${start}, end: ${end}, type: ${type}, item: ${item}}`)) {
+        //     const {events} = this.state;
+        //     let newFreshId = 0;
+        //     events.forEach((item) => {
+        //         if (item.id >= newFreshId)
+        //             newFreshId = item.id + 1;
+        //     });
+        //     let newEvent = {
+        //         id: newFreshId,
+        //         title: 'New event you just created',
+        //         start: start,
+        //         end: end,
+        //         resourceId: slotId,
+        //         bgColor: 'purple'
+        //     }
+        //     this.setState({
+        //         events: [
+        //             ...events,
+        //             newEvent
+        //         ]
+        //     })
+        // }
+
+
+        console.log(`Clicked slot: ${slotId}, slotName: ${slotName}, start: ${start}, end: ${end}, type: ${type}, item: ${item}}`);
     }
 
     updateEventStart = (event, newStart) => {
@@ -111,18 +114,14 @@ class Basic extends Component {
                 events={events}
                 resources={resources}
                 localeMoment={moment}
-                date={'2017-12-18'}
+                date={moment(this.state.date).format(DATE_FORMAT)}
 
                 onPreviousClick={this.prevClick}
                 onNextClick={this.nextClick}
 
                 onSelectDate={this.onSelectDate}
                 onViewChange={this.onViewChange}
-                eventItemClick={this.eventClicked}
-                viewEventClick={this.ops1}
-                viewEventText="Ops 1"
-                viewEvent2Text="Ops 2"
-                viewEvent2Click={this.ops2}
+
                 updateEventStart={this.updateEventStart}
                 updateEventEnd={this.updateEventEnd}
                 onMoveEvent={this.onMoveEvent}

@@ -144,7 +144,7 @@ class ResourceEvents extends Component {
     stopDrag = (ev) => {
         ev.stopPropagation();
 
-        const {onCellClick, resourceEvents} = this.props;
+        const {onSelection, resourceEvents} = this.props;
         const {headers, events, config, cellUnit, localeMoment} = this.props;
         const {leftIndex, rightIndex} = this.state;
         if (supportTouch) {
@@ -164,15 +164,6 @@ class ResourceEvents extends Component {
             endTime = localeMoment(resourceEvents.headerItems[rightIndex - 1].start).hour(23).minute(59).second(59).format(DATETIME_FORMAT);
         let slotId = resourceEvents.slotId;
         let slotName = resourceEvents.slotName;
-
-        this.setState({
-            startX: 0,
-            leftIndex: 0,
-            left: 0,
-            rightIndex: 0,
-            width: 0,
-            isSelecting: false
-        });
 
         let hasConflict = false;
         if (config.checkConflict) {
@@ -204,9 +195,19 @@ class ResourceEvents extends Component {
                 console.log('Conflict occurred, set conflictOccurred func in Scheduler to handle it');
             }
         } else {
-            if (typeof onCellClick !== "undefined")
-                onCellClick(slotId, slotName, startTime, endTime);
+            if (typeof onSelection !== "undefined")
+                onSelection(slotId, slotName, startTime, endTime, this.state.left, this.state.width);
         }
+
+        this.setState({
+            startX: 0,
+            leftIndex: 0,
+            left: 0,
+            rightIndex: 0,
+            width: 0,
+            isSelecting: false
+        });
+
     }
 
     cancelDrag = (ev) => {
@@ -244,13 +245,12 @@ class ResourceEvents extends Component {
             localeMoment,
             contentCellWidth,
             cellMaxEvents,
-            schedulerWidth
+            schedulerWidth,
+            selectedSlot
         } = this.props;
         const {isSelecting, left, width} = this.state;
         let cellWidth = contentCellWidth;
         let rowWidth = schedulerWidth + 1;
-
-        let selectedArea = isSelecting ? <SelectedArea {...this.props} left={left} width={width}/> : <div/>;
 
         let eventList = [];
         resourceEvents.headerItems.forEach((headerItem, index) => {
@@ -306,7 +306,19 @@ class ResourceEvents extends Component {
                             className="event-container"
                             style={{height: resourceEvents.rowHeight}}
                         >
-                            {selectedArea}
+                            {selectedSlot && selectedSlot.slotId === resourceEvents.slotId && (
+                                <SelectedArea
+                                    background={config.selectedAreaColor}
+                                    left={selectedSlot.left}
+                                    width={selectedSlot.width}
+                                />
+                            )}
+                            {isSelecting && (
+                                <SelectedArea
+                                    background={config.isSelectingAreaColor}
+                                    left={left}
+                                    width={width}/>
+                            )}
                             {eventList}
                         </div>
                     )}

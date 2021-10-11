@@ -44,7 +44,6 @@ class SchedulerMain extends Component {
         prevClick: PropTypes.func.isRequired,
         nextClick: PropTypes.func.isRequired,
         onViewChange: PropTypes.func.isRequired,
-        onSelectDate: PropTypes.func.isRequired,
         onSetAddMoreState: PropTypes.func,
         updateEventStart: PropTypes.func,
         updateEventEnd: PropTypes.func,
@@ -59,7 +58,6 @@ class SchedulerMain extends Component {
         viewEvent2Text: PropTypes.string,
         conflictOccurred: PropTypes.func,
         eventItemTemplateResolver: PropTypes.func,
-        dndSources: PropTypes.array,
         slotClickedFunc: PropTypes.func,
         toggleExpandFunc: PropTypes.func,
         slotItemTemplateResolver: PropTypes.func,
@@ -250,19 +248,6 @@ class SchedulerMain extends Component {
         prevClick();
     }
 
-    handleVisibleChange = (visible) => {
-        this.setState({visible});
-    }
-
-    onSelect = (date) => {
-        this.setState({
-            visible: false,
-        });
-
-        const {onSelectDate} = this.props;
-        onSelectDate(date);
-    }
-
     render() {
         const {width, dateLabel, renderData, viewType, showAgenda, isEventPerspective, config} = this.props;
 
@@ -417,7 +402,6 @@ class SchedulerMain extends Component {
                         views={config.views}
                         messages={config.messages}
                         onViewChange={this.onViewChange}
-                        selectedDate={this.props.selectedDate}
 
                         goBack={this.goBack}
                         goNext={this.goNext}

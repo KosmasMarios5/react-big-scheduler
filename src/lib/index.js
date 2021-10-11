@@ -24,6 +24,8 @@ const Scheduler = (props) => {
 
     const [documentWidth, setDocumentWidth] = useState(0);
 
+    const [selectedSlot, setSelectedSlot] = useState(null);
+
     const getMinuteStepsInHour = useCallback(() => {
         return 60 / config.minuteStep;
     }, [config.minuteStep]);
@@ -44,12 +46,13 @@ const Scheduler = (props) => {
             }
         });
     }, [resources])
-    const _setScrollToSpecialMoment = (scrollToSpecialMoment) => {
+
+    const _setScrollToSpecialMoment = useCallback((scrollToSpecialMoment) => {
         if (config.scrollToSpecialMomentEnabled) {
             setScrollToSpecialMoment(scrollToSpecialMoment);
         }
+    }, [config.scrollToSpecialMomentEnabled])
 
-    }
     const _validateMinuteStep = (minuteStep) => {
         if (60 % minuteStep !== 0) {
             console.error('Minute step is not set properly - 60 minutes must be divisible without remainder by this number');
@@ -461,7 +464,7 @@ const Scheduler = (props) => {
 
         _validateResource();
         _setScrollToSpecialMoment(true)
-    }, [])
+    }, [_resolveDate, _setScrollToSpecialMoment, _validateResource, behaviors, config, localeMoment, props.behaviors, props.config, props.date])
 
     const isSchedulerResponsive = () => {
         return !!config.schedulerWidth.endsWith && config.schedulerWidth.endsWith("%");
@@ -618,13 +621,6 @@ const Scheduler = (props) => {
         }
     }
 
-    const setDate = (date) => {
-        _resolveDate(0, date);
-        if (props.onSelectDate) {
-            props.onSelectDate(date)
-        }
-    }
-
     const prev = () => {
         _resolveDate(-1);
         if (props.onPreviousClick) {
@@ -644,6 +640,17 @@ const Scheduler = (props) => {
         setHiddenSlots(newHiddenSlots)
         if (props.onSlotItemExpandToggle) {
             props.onSlotItemExpandToggle(expanded, slotId)
+        }
+    }
+
+    const onSelection = (slotId, slotName, startTime, endTime, selectionLeft, selectionWidth) => {
+        setSelectedSlot({
+            slotId,
+            left: selectionLeft,
+            width: selectionWidth
+        })
+        if (props.onSelection){
+            props.onSelection(slotId, slotName, startTime, endTime);
         }
     }
 
@@ -690,9 +697,11 @@ const Scheduler = (props) => {
             getEventSlotId={_getEventSlotId}
             getSlotById={getSlotById}
             onViewChange={_setViewType}
-            onSelectDate={setDate}
+
             onMoveEvent={props.onMoveEvent}
-            onCellClick={props.onCellClick}
+
+            selectedSlot={selectedSlot}
+            onSelection={onSelection}
             onSlotItemExpandToggle={onSlotItemExpandToggle}
 
             prevClick={prev}
