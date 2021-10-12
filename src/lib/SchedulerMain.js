@@ -40,34 +40,6 @@ class SchedulerMain extends Component {
         });
     }
 
-    static propTypes = {
-        prevClick: PropTypes.func.isRequired,
-        nextClick: PropTypes.func.isRequired,
-        onViewChange: PropTypes.func.isRequired,
-        onSetAddMoreState: PropTypes.func,
-        updateEventStart: PropTypes.func,
-        updateEventEnd: PropTypes.func,
-        moveEvent: PropTypes.func,
-        movingEvent: PropTypes.func,
-        newEvent: PropTypes.func,
-        subtitleGetter: PropTypes.func,
-        eventItemClick: PropTypes.func,
-        viewEventClick: PropTypes.func,
-        viewEventText: PropTypes.string,
-        viewEvent2Click: PropTypes.func,
-        viewEvent2Text: PropTypes.string,
-        conflictOccurred: PropTypes.func,
-        eventItemTemplateResolver: PropTypes.func,
-        slotClickedFunc: PropTypes.func,
-        toggleExpandFunc: PropTypes.func,
-        slotItemTemplateResolver: PropTypes.func,
-        nonAgendaCellHeaderTemplateResolver: PropTypes.func,
-        onScrollLeft: PropTypes.func,
-        onScrollRight: PropTypes.func,
-        onScrollTop: PropTypes.func,
-        onScrollBottom: PropTypes.func,
-    }
-
     componentDidMount() {
         this.resolveScrollbarSize();
     }
@@ -232,20 +204,7 @@ class SchedulerMain extends Component {
     }
 
     onViewChange = (item) => {
-        // let viewType = parseInt(e.target.value.charAt(0));
-        // let showAgenda = e.target.value.charAt(1) === '1';
-        // let isEventPerspective = e.target.value.charAt(2) === '1';
         this.props.onViewChange(item.viewType, item.showAgenda, item.isEventPerspective);
-    }
-
-    goNext = () => {
-        const {nextClick} = this.props;
-        nextClick();
-    }
-
-    goBack = () => {
-        const {prevClick} = this.props;
-        prevClick();
     }
 
     render() {
@@ -403,8 +362,8 @@ class SchedulerMain extends Component {
                         messages={config.messages}
                         onViewChange={this.onViewChange}
 
-                        goBack={this.goBack}
-                        goNext={this.goNext}
+                        goBack={this.props.onClickPrevious}
+                        goNext={this.props.onClickNext}
                     />
                 )}
                 <table id="RBS-Scheduler-root" style={{width: `${width}px`}}>
@@ -415,6 +374,32 @@ class SchedulerMain extends Component {
             </div>
         )
     }
+}
+
+SchedulerMain.propTypes = {
+    onViewChange: PropTypes.func.isRequired,
+    onSetAddMoreState: PropTypes.func,
+    updateEventStart: PropTypes.func,
+    updateEventEnd: PropTypes.func,
+    moveEvent: PropTypes.func,
+    movingEvent: PropTypes.func,
+    newEvent: PropTypes.func,
+    subtitleGetter: PropTypes.func,
+    eventItemClick: PropTypes.func,
+    viewEventClick: PropTypes.func,
+    viewEventText: PropTypes.string,
+    viewEvent2Click: PropTypes.func,
+    viewEvent2Text: PropTypes.string,
+    conflictOccurred: PropTypes.func,
+    eventItemTemplateResolver: PropTypes.func,
+    slotClickedFunc: PropTypes.func,
+    toggleExpandFunc: PropTypes.func,
+    slotItemTemplateResolver: PropTypes.func,
+    nonAgendaCellHeaderTemplateResolver: PropTypes.func,
+    onScrollLeft: PropTypes.func,
+    onScrollRight: PropTypes.func,
+    onScrollTop: PropTypes.func,
+    onScrollBottom: PropTypes.func,
 }
 
 export default SchedulerMain

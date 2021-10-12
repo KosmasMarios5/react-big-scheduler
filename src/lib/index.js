@@ -19,8 +19,11 @@ const Scheduler = (props) => {
     const [behaviors, setBehaviors] = useState(defaultBehaviors);
 
     const [startDate, setStartDate] = useState(null);
+    const [startDateObj, setStartDateObj] = useState(null);
     const [endDate, setEndDate] = useState(null);
+    const [endDateObj, setEndDateObj] = useState(null);
     const [selectDate, setSelectDate] = useState(null);
+    const [selectDateObj, setSelectDateObj] = useState(null);
 
     const [documentWidth, setDocumentWidth] = useState(0);
 
@@ -61,53 +64,51 @@ const Scheduler = (props) => {
 
     }
 
-    const _resolveDate = useCallback((num, date) => {
-        if (typeof date !== "undefined") {
-            setSelectDate(localeMoment(date).format(DATE_FORMAT));
-        }
-        if (viewType === ViewTypes.Week) {
-            const newStartDate = typeof date !== "undefined" ? localeMoment(date).startOf('week').format(DATE_FORMAT)
-                : localeMoment(startDate).add(num, 'weeks').format(DATE_FORMAT);
-            const newEndDate = localeMoment(newStartDate).endOf('week').format(DATE_FORMAT);
-            setStartDate(newStartDate)
-            setEndDate(newEndDate)
-        } else if (viewType === ViewTypes.Day) {
-            const newStartDate = typeof date !== "undefined" ? selectDate
-                : localeMoment(startDate).add(num, 'days').format(DATE_FORMAT);
-            setStartDate(newStartDate)
-            setEndDate(newStartDate)
-        } else if (viewType === ViewTypes.Month) {
-            const newStartDate = typeof date !== "undefined" ? localeMoment(date).startOf('month').format(DATE_FORMAT)
-                : localeMoment(startDate).add(num, 'months').format(DATE_FORMAT);
-            const newEndDate = localeMoment(newStartDate).endOf('month').format(DATE_FORMAT);
-            setStartDate(newStartDate)
-            setEndDate(newEndDate)
-        } else if (viewType === ViewTypes.Quarter) {
-            const newStartDate = typeof date !== "undefined" ? localeMoment(date).startOf('quarter').format(DATE_FORMAT)
-                : localeMoment(startDate).add(num, 'quarters').format(DATE_FORMAT);
-            const newEndDate = localeMoment(newStartDate).endOf('quarter').format(DATE_FORMAT);
-            setStartDate(newStartDate)
-            setEndDate(newEndDate)
-        } else if (viewType === ViewTypes.Year) {
-            const newStartDate = typeof date !== "undefined" ? localeMoment(date).startOf('year').format(DATE_FORMAT)
-                : localeMoment(startDate).add(num, 'years').format(DATE_FORMAT);
-            const newEndDate = localeMoment(newStartDate).endOf('year').format(DATE_FORMAT);
-            setStartDate(newStartDate)
-            setEndDate(newEndDate)
-        } else if (viewType === ViewTypes.Custom || viewType === ViewTypes.Custom1 || viewType === ViewTypes.Custom2) {
-            if (typeof behaviors.getCustomDateFunc !== "undefined") {
-                let customDate = behaviors.getCustomDateFunc(num, date);
-                const newStartDate = customDate.startDate;
-                const newEndDate = customDate.endDate;
-                setStartDate(newStartDate)
-                setEndDate(newEndDate)
-                if (!!customDate.cellUnit)
-                    setCellUnit(customDate.cellUnit)
-            } else {
-                throw new Error('This is custom view type, set behaviors.getCustomDateFunc func to resolve the time window(startDate and endDate) yourself');
+    const _resolveDate = useCallback((viewType, num, date) => {
+        const setDates = (type) => {
+            let newStartDate, newEndDate;
+            newStartDate = typeof date !== "undefined" ?
+                localeMoment(date).startOf(type)
+                : num !== 0 ?
+                    localeMoment(startDate).add(num, type + "s") :
+                    localeMoment(startDate).startOf(type);
+
+            newEndDate = localeMoment(newStartDate).endOf(type)
+            setStartDate(newStartDate.format(DATE_FORMAT))
+            setStartDateObj(newStartDate)
+            setEndDate(newEndDate.format(DATE_FORMAT))
+            setEndDateObj(newEndDate)
+
+            let newSelectDate = typeof date !== "undefined" ?
+                localeMoment(date) :
+                selectDateObj.add(num, type + "s");
+
+            if (!(newSelectDate >= newStartDate && newSelectDate <= newEndDate)) {
+                newSelectDate = newStartDate
             }
+            setSelectDate(newSelectDate.format(DATE_FORMAT));
+            setSelectDateObj(newSelectDate);
         }
-    }, [behaviors, localeMoment, selectDate, startDate, viewType])
+        switch (viewType) {
+            case ViewTypes.Week:
+                setDates("week")
+                break
+            case ViewTypes.Day:
+                setDates("day")
+                break
+            case ViewTypes.Month:
+                setDates("month")
+                break
+            case ViewTypes.Quarter:
+                setDates("quarter")
+                break
+            case ViewTypes.Year:
+                setDates("year")
+                break
+            default:
+        }
+    }, [localeMoment, selectDateObj, startDate])
+
     const _createHeaderEvent = (expanded, span, eventItem) => {
         return {
             expanded: expanded,
@@ -458,13 +459,19 @@ const Scheduler = (props) => {
             const newBehaviors = {...behaviors, ...props.behaviors}
             setBehaviors(newBehaviors)
         }
-        _resolveDate(0, localeMoment(props.date).format(DATE_FORMAT))
-
         _setDocumentWidth(document.documentElement.clientWidth);
-
         _validateResource();
         _setScrollToSpecialMoment(true)
-    }, [_resolveDate, _setScrollToSpecialMoment, _validateResource, behaviors, config, localeMoment, props.behaviors, props.config, props.date])
+    }, [])
+
+
+    useEffect(() => {
+        const newDate = localeMoment(props.date).format(DATE_FORMAT);
+        if (newDate !== selectDate) {
+            _resolveDate(viewType, 0, newDate)
+        }
+    }, [props.date])
+
 
     const isSchedulerResponsive = () => {
         return !!config.schedulerWidth.endsWith && config.schedulerWidth.endsWith("%");
@@ -541,97 +548,39 @@ const Scheduler = (props) => {
     }
 
     const _setViewType = (newViewType, showAgenda, isEventPerspective) => {
+        if (viewType === newViewType) return;
+
+        _resolveDate(newViewType, 0)
+        _setScrollToSpecialMoment(true);
+
+        if (newViewType === ViewTypes.Day) {
+            setCellUnit(CellUnits.Hour)
+        } else {
+            setCellUnit(CellUnits.Day)
+        }
         setShowAgenda(showAgenda)
         setIsEventPerspective(isEventPerspective)
-        setCellUnit(CellUnits.Day)
-
-        if (viewType !== newViewType) {
-            let date = startDate;
-            if (newViewType === ViewTypes.Custom || newViewType === ViewTypes.Custom1 || newViewType === ViewTypes.Custom2) {
-                setViewType(newViewType)
-                _resolveDate(0, date)
-            } else {
-                if (viewType < newViewType) {
-                    if (newViewType === ViewTypes.Week) {
-                        const newStartDate = localeMoment(date).startOf('week').format(DATE_FORMAT)
-                        const newEndDate = localeMoment(newStartDate).endOf('week').format(DATE_FORMAT)
-                        setStartDate(newStartDate)
-                        setEndDate(newEndDate)
-                    } else if (newViewType === ViewTypes.Month) {
-                        const newStartDate = localeMoment(date).startOf('month').format(DATE_FORMAT)
-                        const newEndDate = localeMoment(newStartDate).endOf('month').format(DATE_FORMAT)
-                        setStartDate(newStartDate)
-                        setEndDate(newEndDate)
-                    } else if (newViewType === ViewTypes.Quarter) {
-                        const newStartDate = localeMoment(date).startOf('quarter').format(DATE_FORMAT)
-                        const newEndDate = localeMoment(newStartDate).endOf('quarter').format(DATE_FORMAT)
-                        setStartDate(newStartDate)
-                        setEndDate(newEndDate)
-                    } else if (newViewType === ViewTypes.Year) {
-                        const newStartDate = localeMoment(date).startOf('year').format(DATE_FORMAT)
-                        const newEndDate = localeMoment(newStartDate).endOf('year').format(DATE_FORMAT)
-                        setStartDate(newStartDate)
-                        setEndDate(newEndDate)
-                    }
-                } else {
-                    let start = localeMoment(startDate);
-                    let end = localeMoment(endDate).add(1, 'days');
-
-                    if (typeof selectDate !== "undefined") {
-                        let newSelectDate = localeMoment(selectDate);
-                        if (newSelectDate >= start && newSelectDate < end) {
-                            date = newSelectDate;
-                        }
-                    }
-                    let now = localeMoment();
-                    if (now >= start && now < end) {
-                        date = now.format(DATE_FORMAT);
-                    }
-                    if (newViewType === ViewTypes.Day) {
-                        setStartDate(date);
-                        setEndDate(date)
-                        setCellUnit(CellUnits.Hour)
-                    } else if (newViewType === ViewTypes.Week) {
-                        const newStartDate = localeMoment(date).startOf('week').format(DATE_FORMAT)
-                        const newEndDate = localeMoment(newStartDate).endOf('week').format(DATE_FORMAT)
-                        setStartDate(newStartDate)
-                        setEndDate(newEndDate)
-                    } else if (newViewType === ViewTypes.Month) {
-                        const newStartDate = localeMoment(date).startOf('month').format(DATE_FORMAT)
-                        const newEndDate = localeMoment(newStartDate).endOf('month').format(DATE_FORMAT)
-                        setStartDate(newStartDate)
-                        setEndDate(newEndDate)
-                    } else if (newViewType === ViewTypes.Quarter) {
-                        const newStartDate = localeMoment(date).startOf('quarter').format(DATE_FORMAT)
-                        const newEndDate = localeMoment(newStartDate).endOf('quarter').format(DATE_FORMAT)
-                        setStartDate(newStartDate)
-                        setEndDate(newEndDate)
-                    }
-                }
-                setViewType(newViewType)
-                if (props.onViewChange) {
-                    props.onViewChange({
-                        viewType: newViewType,
-                        showAgenda: showAgenda,
-                        isEventPerspective: isEventPerspective
-                    });
-                }
-            }
-            _setScrollToSpecialMoment(true);
+        setViewType(newViewType)
+        if (props.onViewChange) {
+            props.onViewChange({
+                viewType: newViewType,
+                showAgenda: showAgenda,
+                isEventPerspective: isEventPerspective
+            });
         }
     }
 
     const prev = () => {
-        _resolveDate(-1);
-        if (props.onPreviousClick) {
-            props.onPreviousClick(selectDate);
+        _resolveDate(viewType, -1);
+        if (props.onNavigate) {
+            props.onNavigate(selectDateObj.toDate(), startDateObj.toDate(), endDateObj.toDate());
         }
     }
 
     const next = () => {
-        _resolveDate(1);
-        if (props.onNextClick) {
-            props.onNextClick(selectDate);
+        _resolveDate(viewType, 1);
+        if (props.onNavigate) {
+            props.onNavigate(selectDateObj.toDate(), startDateObj.toDate(), endDateObj.toDate());
         }
     }
 
@@ -653,64 +602,66 @@ const Scheduler = (props) => {
             left: selectionLeft,
             width: selectionWidth
         })
-        if (props.onSelection){
+        if (props.onSelection) {
             props.onSelection(slotId, slotName, startTime, endTime, clearSelection);
         }
     }
 
     return (
-        <SchedulerMain
-            {...props}
-            headers={_createHeaders()}
-            renderData={_createRenderData()}
-            cellUnit={cellUnit}
+        <>
+            <SchedulerMain
+                {...props}
+                headers={_createHeaders()}
+                renderData={_createRenderData()}
+                cellUnit={cellUnit}
 
-            viewType={viewType}
-            config={config}
-            behaviors={behaviors}
-            showAgenda={showAgenda}
-            isEventPerspective={isEventPerspective}
+                viewType={viewType}
+                config={config}
+                behaviors={behaviors}
+                showAgenda={showAgenda}
+                isEventPerspective={isEventPerspective}
 
-            isResizing={resizing}
-            startResizing={_startResizing}
-            stopResizing={_stopResizing}
+                isResizing={resizing}
+                startResizing={_startResizing}
+                stopResizing={_stopResizing}
 
-            dateLabel={getDateLabel()}
+                dateLabel={getDateLabel()}
 
-            width={getSchedulerWidth()}
-            tableHeaderHeight={getTableHeaderHeight()}
-            contentCellWidth={getContentCellWidth()}
-            cellMaxEvents={getCellMaxEvents()}
-            minuteStepsInHour={getMinuteStepsInHour()}
-            resourceTableWidth={getResourceTableWidth()}
-            // schedulerWidth={getContentTableWidth() - 1}
-            schedulerWidth={getContentTableWidth()}
-            contentHeight={getSchedulerContentDesiredHeight()}
-            isSchedulerResponsive={isSchedulerResponsive()}
-            setDocumentWidth={_setDocumentWidth}
+                width={getSchedulerWidth()}
+                tableHeaderHeight={getTableHeaderHeight()}
+                contentCellWidth={getContentCellWidth()}
+                cellMaxEvents={getCellMaxEvents()}
+                minuteStepsInHour={getMinuteStepsInHour()}
+                resourceTableWidth={getResourceTableWidth()}
+                // schedulerWidth={getContentTableWidth() - 1}
+                schedulerWidth={getContentTableWidth()}
+                contentHeight={getSchedulerContentDesiredHeight()}
+                isSchedulerResponsive={isSchedulerResponsive()}
+                setDocumentWidth={_setDocumentWidth}
 
-            scrollToSpecialMoment={scrollToSpecialMoment}
-            setScrollToSpecialMoment={setScrollToSpecialMoment}
+                scrollToSpecialMoment={scrollToSpecialMoment}
+                setScrollToSpecialMoment={setScrollToSpecialMoment}
 
-            localeMoment={localeMoment}
+                localeMoment={localeMoment}
 
-            startDate={startDate}
-            endDate={endDate}
+                startDate={startDate}
+                endDate={endDate}
 
 
-            getEventSlotId={_getEventSlotId}
-            getSlotById={getSlotById}
-            onViewChange={_setViewType}
+                getEventSlotId={_getEventSlotId}
+                getSlotById={getSlotById}
+                onViewChange={_setViewType}
 
-            onMoveEvent={props.onMoveEvent}
+                onMoveEvent={props.onMoveEvent}
 
-            selectedSlot={selectedSlot}
-            onSelection={onSelection}
-            onSlotItemExpandToggle={onSlotItemExpandToggle}
+                selectedSlot={selectedSlot}
+                onSelection={onSelection}
+                onSlotItemExpandToggle={onSlotItemExpandToggle}
 
-            prevClick={prev}
-            nextClick={next}
-        />
+                onClickPrevious={prev}
+                onClickNext={next}
+            />
+        </>
     )
 }
 

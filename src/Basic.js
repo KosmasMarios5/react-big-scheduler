@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-globals */
 import React, {Component} from 'react'
-
-import Scheduler, {DATE_FORMAT, ViewTypes} from "./lib";
+import Scheduler, {ViewTypes} from "./lib";
 import moment from "moment";
 import "./lib/css/style.css"
 import 'moment/locale/el';
@@ -9,17 +8,14 @@ import DemoData from "./DemoData";
 
 
 class Basic extends Component {
-
-
     state = {
         events: DemoData.events,
         resources: DemoData.resources,
-        date: Date.parse('04 Dec 2017 00:12:00 GMT')
+        date: Date.parse('04 Dec 2017 06:12:00 GMT')
     }
 
     componentDidMount() {
         moment.locale("el")
-        console.log(this.state.date)
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -28,10 +24,10 @@ class Basic extends Component {
         }
     }
 
-    prevClick = () => {
-    }
-
-    nextClick = () => {
+    onNavigate = (date) => {
+        this.setState({
+            date: date
+        })
     }
 
     onViewChange = (view) => {
@@ -64,7 +60,6 @@ class Basic extends Component {
         //         ]
         //     })
         // }
-
 
         console.log(`Clicked slot: ${slotId}, slotName: ${slotName}, start: ${start}, end: ${end}, type: ${type}, item: ${item}}`);
     }
@@ -114,10 +109,9 @@ class Basic extends Component {
                 events={events}
                 resources={resources}
                 localeMoment={moment}
-                date={moment(this.state.date).format(DATE_FORMAT)}
 
-                onPreviousClick={this.prevClick}
-                onNextClick={this.nextClick}
+                date={this.state.date}
+                onNavigate={this.onNavigate}
 
                 onSelectDate={this.onSelectDate}
                 onViewChange={this.onViewChange}

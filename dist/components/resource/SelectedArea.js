@@ -11,8 +11,7 @@ var _react = _interopRequireDefault(require("react"));
 
 var SelectedArea = function SelectedArea(props) {
   var left = props.left,
-      width = props.width,
-      config = props.config;
+      width = props.width;
   return /*#__PURE__*/_react.default.createElement("div", {
     className: "selected-area",
     style: {
@@ -20,7 +19,7 @@ var SelectedArea = function SelectedArea(props) {
       width: width,
       top: 0,
       bottom: 0,
-      backgroundColor: config.selectedAreaColor
+      backgroundColor: props.background
     }
   });
 };

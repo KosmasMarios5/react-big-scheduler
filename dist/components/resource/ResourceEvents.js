@@ -141,7 +141,7 @@ var ResourceEvents = /*#__PURE__*/function (_Component) {
     _this.stopDrag = function (ev) {
       ev.stopPropagation();
       var _this$props3 = _this.props,
-          onCellClick = _this$props3.onCellClick,
+          onSelection = _this$props3.onSelection,
           resourceEvents = _this$props3.resourceEvents;
       var _this$props4 = _this.props,
           headers = _this$props4.headers,
@@ -169,16 +169,6 @@ var ResourceEvents = /*#__PURE__*/function (_Component) {
       if (cellUnit !== _CellUnits.default.Hour) endTime = localeMoment(resourceEvents.headerItems[rightIndex - 1].start).hour(23).minute(59).second(59).format(_index.DATETIME_FORMAT);
       var slotId = resourceEvents.slotId;
       var slotName = resourceEvents.slotName;
-
-      _this.setState({
-        startX: 0,
-        leftIndex: 0,
-        left: 0,
-        rightIndex: 0,
-        width: 0,
-        isSelecting: false
-      });
-
       var hasConflict = false;
 
       if (config.checkConflict) {
@@ -210,8 +200,17 @@ var ResourceEvents = /*#__PURE__*/function (_Component) {
           console.log('Conflict occurred, set conflictOccurred func in Scheduler to handle it');
         }
       } else {
-        if (typeof onCellClick !== "undefined") onCellClick(slotId, slotName, startTime, endTime);
+        if (typeof onSelection !== "undefined") onSelection(slotId, slotName, startTime, endTime, _this.state.left, _this.state.width);
       }
+
+      _this.setState({
+        startX: 0,
+        leftIndex: 0,
+        left: 0,
+        rightIndex: 0,
+        width: 0,
+        isSelecting: false
+      });
     };
 
     _this.cancelDrag = function (ev) {
@@ -284,17 +283,14 @@ var ResourceEvents = /*#__PURE__*/function (_Component) {
           localeMoment = _this$props6.localeMoment,
           contentCellWidth = _this$props6.contentCellWidth,
           cellMaxEvents = _this$props6.cellMaxEvents,
-          schedulerWidth = _this$props6.schedulerWidth;
+          schedulerWidth = _this$props6.schedulerWidth,
+          selectedSlot = _this$props6.selectedSlot;
       var _this$state2 = this.state,
           isSelecting = _this$state2.isSelecting,
           left = _this$state2.left,
           width = _this$state2.width;
       var cellWidth = contentCellWidth;
       var rowWidth = schedulerWidth + 1;
-      var selectedArea = isSelecting ? /*#__PURE__*/_react.default.createElement(_SelectedArea.default, Object.assign({}, this.props, {
-        left: left,
-        width: width
-      })) : /*#__PURE__*/_react.default.createElement("div", null);
       var eventList = [];
       resourceEvents.headerItems.forEach(function (headerItem, index) {
         if (headerItem.count > 0 || typeof headerItem.summary !== "undefined") {
@@ -350,7 +346,15 @@ var ResourceEvents = /*#__PURE__*/function (_Component) {
         style: {
           height: resourceEvents.rowHeight
         }
-      }, selectedArea, eventList))));
+      }, selectedSlot && selectedSlot.slotId === resourceEvents.slotId && /*#__PURE__*/_react.default.createElement(_SelectedArea.default, {
+        background: config.selectedAreaColor,
+        left: selectedSlot.left,
+        width: selectedSlot.width
+      }), isSelecting && /*#__PURE__*/_react.default.createElement(_SelectedArea.default, {
+        background: config.isSelectingAreaColor,
+        left: left,
+        width: width
+      }), eventList))));
     }
   }]);
   return ResourceEvents;

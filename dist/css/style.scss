@@ -159,7 +159,6 @@ table.scheduler-table tr:last-child td {
 
 .timeline-event {
   position: absolute;
-  z-index: 2;
 }
 
 .day-event {
@@ -175,7 +174,6 @@ table.scheduler-table tr:last-child td {
 
 .event-container {
   position: relative;
-  z-index: 1;
 }
 
 .overflow-text {
@@ -220,8 +218,8 @@ table.scheduler-table tr:last-child td {
 }
 
 .selected-area {
-  z-index: -2;
   position: absolute;
+  z-index: -1;
 }
 
 .slot-cell {

@@ -676,8 +676,7 @@ var EventItem = /*#__PURE__*/function (_Component) {
       }, /*#__PURE__*/_react.default.createElement("span", null, eventTitle));
 
       if (typeof eventItemTemplateResolver !== "undefined") eventItemTemplate = eventItemTemplateResolver(eventItem, bgColor, isStart, isEnd, 'event-item', config.eventItemHeight, undefined);
-
-      var a = /*#__PURE__*/_react.default.createElement("a", {
+      return isDragging ? null : /*#__PURE__*/_react.default.createElement("div", null, connectDragPreview(connectDragSource( /*#__PURE__*/_react.default.createElement("div", {
         className: "timeline-event",
         style: {
           left: left,
@@ -687,9 +686,7 @@ var EventItem = /*#__PURE__*/function (_Component) {
         onClick: function onClick() {
           if (!!eventItemClick) eventItemClick(eventItem);
         }
-      }, eventItemTemplate, startResizeDiv, endResizeDiv);
-
-      return isDragging ? null : /*#__PURE__*/_react.default.createElement("div", null, connectDragPreview(connectDragSource(a)));
+      }, eventItemTemplate, startResizeDiv, endResizeDiv))));
     }
   }]);
   return EventItem;

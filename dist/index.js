@@ -101,18 +101,38 @@ var Scheduler = function Scheduler(props) {
 
   var _useState21 = (0, _react.useState)(null),
       _useState22 = (0, _slicedToArray2.default)(_useState21, 2),
-      endDate = _useState22[0],
-      setEndDate = _useState22[1];
+      startDateObj = _useState22[0],
+      setStartDateObj = _useState22[1];
 
   var _useState23 = (0, _react.useState)(null),
       _useState24 = (0, _slicedToArray2.default)(_useState23, 2),
-      selectDate = _useState24[0],
-      setSelectDate = _useState24[1];
+      endDate = _useState24[0],
+      setEndDate = _useState24[1];
 
-  var _useState25 = (0, _react.useState)(0),
+  var _useState25 = (0, _react.useState)(null),
       _useState26 = (0, _slicedToArray2.default)(_useState25, 2),
-      documentWidth = _useState26[0],
-      setDocumentWidth = _useState26[1];
+      endDateObj = _useState26[0],
+      setEndDateObj = _useState26[1];
+
+  var _useState27 = (0, _react.useState)(null),
+      _useState28 = (0, _slicedToArray2.default)(_useState27, 2),
+      selectDate = _useState28[0],
+      setSelectDate = _useState28[1];
+
+  var _useState29 = (0, _react.useState)(null),
+      _useState30 = (0, _slicedToArray2.default)(_useState29, 2),
+      selectDateObj = _useState30[0],
+      setSelectDateObj = _useState30[1];
+
+  var _useState31 = (0, _react.useState)(0),
+      _useState32 = (0, _slicedToArray2.default)(_useState31, 2),
+      documentWidth = _useState32[0],
+      setDocumentWidth = _useState32[1];
+
+  var _useState33 = (0, _react.useState)(null),
+      _useState34 = (0, _slicedToArray2.default)(_useState33, 2),
+      selectedSlot = _useState34[0],
+      setSelectedSlot = _useState34[1];
 
   var getMinuteStepsInHour = (0, _react.useCallback)(function () {
     return 60 / config.minuteStep;
@@ -136,11 +156,11 @@ var Scheduler = function Scheduler(props) {
     });
   }, [resources]);
 
-  var _setScrollToSpecialMoment = function _setScrollToSpecialMoment(scrollToSpecialMoment) {
+  var _setScrollToSpecialMoment = (0, _react.useCallback)(function (scrollToSpecialMoment) {
     if (config.scrollToSpecialMomentEnabled) {
       setScrollToSpecialMoment(scrollToSpecialMoment);
     }
-  };
+  }, [config.scrollToSpecialMomentEnabled]);
 
   var _validateMinuteStep = function _validateMinuteStep(minuteStep) {
     if (60 % minuteStep !== 0) {
@@ -149,55 +169,49 @@ var Scheduler = function Scheduler(props) {
     }
   };
 
-  var _resolveDate = (0, _react.useCallback)(function (num, date) {
-    if (typeof date !== "undefined") {
-      setSelectDate(localeMoment(date).format(DATE_FORMAT));
-    }
+  var _resolveDate = (0, _react.useCallback)(function (viewType, num, date) {
+    var setDates = function setDates(type) {
+      var newStartDate, newEndDate;
+      newStartDate = typeof date !== "undefined" ? localeMoment(date).startOf(type) : num !== 0 ? localeMoment(startDate).add(num, type + "s") : localeMoment(startDate).startOf(type);
+      newEndDate = localeMoment(newStartDate).endOf(type);
+      setStartDate(newStartDate.format(DATE_FORMAT));
+      setStartDateObj(newStartDate);
+      setEndDate(newEndDate.format(DATE_FORMAT));
+      setEndDateObj(newEndDate);
+      var newSelectDate = typeof date !== "undefined" ? localeMoment(date) : selectDateObj.add(num, type + "s");
 
-    if (viewType === _ViewTypes.default.Week) {
-      var newStartDate = typeof date !== "undefined" ? localeMoment(date).startOf('week').format(DATE_FORMAT) : localeMoment(startDate).add(num, 'weeks').format(DATE_FORMAT);
-      var newEndDate = localeMoment(newStartDate).endOf('week').format(DATE_FORMAT);
-      setStartDate(newStartDate);
-      setEndDate(newEndDate);
-    } else if (viewType === _ViewTypes.default.Day) {
-      var _newStartDate = typeof date !== "undefined" ? selectDate : localeMoment(startDate).add(num, 'days').format(DATE_FORMAT);
-
-      setStartDate(_newStartDate);
-      setEndDate(_newStartDate);
-    } else if (viewType === _ViewTypes.default.Month) {
-      var _newStartDate2 = typeof date !== "undefined" ? localeMoment(date).startOf('month').format(DATE_FORMAT) : localeMoment(startDate).add(num, 'months').format(DATE_FORMAT);
-
-      var _newEndDate = localeMoment(_newStartDate2).endOf('month').format(DATE_FORMAT);
-
-      setStartDate(_newStartDate2);
-      setEndDate(_newEndDate);
-    } else if (viewType === _ViewTypes.default.Quarter) {
-      var _newStartDate3 = typeof date !== "undefined" ? localeMoment(date).startOf('quarter').format(DATE_FORMAT) : localeMoment(startDate).add(num, 'quarters').format(DATE_FORMAT);
-
-      var _newEndDate2 = localeMoment(_newStartDate3).endOf('quarter').format(DATE_FORMAT);
-
-      setStartDate(_newStartDate3);
-      setEndDate(_newEndDate2);
-    } else if (viewType === _ViewTypes.default.Year) {
-      var _newStartDate4 = typeof date !== "undefined" ? localeMoment(date).startOf('year').format(DATE_FORMAT) : localeMoment(startDate).add(num, 'years').format(DATE_FORMAT);
-
-      var _newEndDate3 = localeMoment(_newStartDate4).endOf('year').format(DATE_FORMAT);
-
-      setStartDate(_newStartDate4);
-      setEndDate(_newEndDate3);
-    } else if (viewType === _ViewTypes.default.Custom || viewType === _ViewTypes.default.Custom1 || viewType === _ViewTypes.default.Custom2) {
-      if (typeof behaviors.getCustomDateFunc !== "undefined") {
-        var customDate = behaviors.getCustomDateFunc(num, date);
-        var _newStartDate5 = customDate.startDate;
-        var _newEndDate4 = customDate.endDate;
-        setStartDate(_newStartDate5);
-        setEndDate(_newEndDate4);
-        if (!!customDate.cellUnit) setCellUnit(customDate.cellUnit);
-      } else {
-        throw new Error('This is custom view type, set behaviors.getCustomDateFunc func to resolve the time window(startDate and endDate) yourself');
+      if (!(newSelectDate >= newStartDate && newSelectDate <= newEndDate)) {
+        newSelectDate = newStartDate;
       }
+
+      setSelectDate(newSelectDate.format(DATE_FORMAT));
+      setSelectDateObj(newSelectDate);
+    };
+
+    switch (viewType) {
+      case _ViewTypes.default.Week:
+        setDates("week");
+        break;
+
+      case _ViewTypes.default.Day:
+        setDates("day");
+        break;
+
+      case _ViewTypes.default.Month:
+        setDates("month");
+        break;
+
+      case _ViewTypes.default.Quarter:
+        setDates("quarter");
+        break;
+
+      case _ViewTypes.default.Year:
+        setDates("year");
+        break;
+
+      default:
     }
-  }, [behaviors, localeMoment, selectDate, startDate, viewType]);
+  }, [localeMoment, selectDateObj, startDate]);
 
   var _createHeaderEvent = function _createHeaderEvent(expanded, span, eventItem) {
     return {
@@ -584,14 +598,19 @@ var Scheduler = function Scheduler(props) {
       setBehaviors(newBehaviors);
     }
 
-    _resolveDate(0, localeMoment(props.date).format(DATE_FORMAT));
-
     _setDocumentWidth(document.documentElement.clientWidth);
 
     _validateResource();
 
     _setScrollToSpecialMoment(true);
   }, []);
+  (0, _react.useEffect)(function () {
+    var newDate = localeMoment(props.date).format(DATE_FORMAT);
+
+    if (newDate !== selectDate) {
+      _resolveDate(viewType, 0, newDate);
+    }
+  }, [props.date]);
 
   var isSchedulerResponsive = function isSchedulerResponsive() {
     return !!config.schedulerWidth.endsWith && config.schedulerWidth.endsWith("%");
@@ -648,128 +667,44 @@ var Scheduler = function Scheduler(props) {
   };
 
   var _setViewType = function _setViewType(newViewType, showAgenda, isEventPerspective) {
+    if (viewType === newViewType) return;
+
+    _resolveDate(newViewType, 0);
+
+    _setScrollToSpecialMoment(true);
+
+    if (newViewType === _ViewTypes.default.Day) {
+      setCellUnit(_CellUnits.default.Hour);
+    } else {
+      setCellUnit(_CellUnits.default.Day);
+    }
+
     setShowAgenda(showAgenda);
     setIsEventPerspective(isEventPerspective);
-    setCellUnit(_CellUnits.default.Day);
+    setViewType(newViewType);
 
-    if (viewType !== newViewType) {
-      var date = startDate;
-
-      if (newViewType === _ViewTypes.default.Custom || newViewType === _ViewTypes.default.Custom1 || newViewType === _ViewTypes.default.Custom2) {
-        setViewType(newViewType);
-
-        _resolveDate(0, date);
-      } else {
-        if (viewType < newViewType) {
-          if (newViewType === _ViewTypes.default.Week) {
-            var newStartDate = localeMoment(date).startOf('week').format(DATE_FORMAT);
-            var newEndDate = localeMoment(newStartDate).endOf('week').format(DATE_FORMAT);
-            setStartDate(newStartDate);
-            setEndDate(newEndDate);
-          } else if (newViewType === _ViewTypes.default.Month) {
-            var _newStartDate6 = localeMoment(date).startOf('month').format(DATE_FORMAT);
-
-            var _newEndDate5 = localeMoment(_newStartDate6).endOf('month').format(DATE_FORMAT);
-
-            setStartDate(_newStartDate6);
-            setEndDate(_newEndDate5);
-          } else if (newViewType === _ViewTypes.default.Quarter) {
-            var _newStartDate7 = localeMoment(date).startOf('quarter').format(DATE_FORMAT);
-
-            var _newEndDate6 = localeMoment(_newStartDate7).endOf('quarter').format(DATE_FORMAT);
-
-            setStartDate(_newStartDate7);
-            setEndDate(_newEndDate6);
-          } else if (newViewType === _ViewTypes.default.Year) {
-            var _newStartDate8 = localeMoment(date).startOf('year').format(DATE_FORMAT);
-
-            var _newEndDate7 = localeMoment(_newStartDate8).endOf('year').format(DATE_FORMAT);
-
-            setStartDate(_newStartDate8);
-            setEndDate(_newEndDate7);
-          }
-        } else {
-          var start = localeMoment(startDate);
-          var end = localeMoment(endDate).add(1, 'days');
-
-          if (typeof selectDate !== "undefined") {
-            var newSelectDate = localeMoment(selectDate);
-
-            if (newSelectDate >= start && newSelectDate < end) {
-              date = newSelectDate;
-            }
-          }
-
-          var now = localeMoment();
-
-          if (now >= start && now < end) {
-            date = now.format(DATE_FORMAT);
-          }
-
-          if (newViewType === _ViewTypes.default.Day) {
-            setStartDate(date);
-            setEndDate(date);
-            setCellUnit(_CellUnits.default.Hour);
-          } else if (newViewType === _ViewTypes.default.Week) {
-            var _newStartDate9 = localeMoment(date).startOf('week').format(DATE_FORMAT);
-
-            var _newEndDate8 = localeMoment(_newStartDate9).endOf('week').format(DATE_FORMAT);
-
-            setStartDate(_newStartDate9);
-            setEndDate(_newEndDate8);
-          } else if (newViewType === _ViewTypes.default.Month) {
-            var _newStartDate10 = localeMoment(date).startOf('month').format(DATE_FORMAT);
-
-            var _newEndDate9 = localeMoment(_newStartDate10).endOf('month').format(DATE_FORMAT);
-
-            setStartDate(_newStartDate10);
-            setEndDate(_newEndDate9);
-          } else if (newViewType === _ViewTypes.default.Quarter) {
-            var _newStartDate11 = localeMoment(date).startOf('quarter').format(DATE_FORMAT);
-
-            var _newEndDate10 = localeMoment(_newStartDate11).endOf('quarter').format(DATE_FORMAT);
-
-            setStartDate(_newStartDate11);
-            setEndDate(_newEndDate10);
-          }
-        }
-
-        setViewType(newViewType);
-
-        if (props.onViewChange) {
-          props.onViewChange({
-            viewType: newViewType,
-            showAgenda: showAgenda,
-            isEventPerspective: isEventPerspective
-          });
-        }
-      }
-
-      _setScrollToSpecialMoment(true);
-    }
-  };
-
-  var setDate = function setDate(date) {
-    _resolveDate(0, date);
-
-    if (props.onSelectDate) {
-      props.onSelectDate(date);
+    if (props.onViewChange) {
+      props.onViewChange({
+        viewType: newViewType,
+        showAgenda: showAgenda,
+        isEventPerspective: isEventPerspective
+      });
     }
   };
 
   var prev = function prev() {
-    _resolveDate(-1);
+    _resolveDate(viewType, -1);
 
-    if (props.onPreviousClick) {
-      props.onPreviousClick(selectDate);
+    if (props.onNavigate) {
+      props.onNavigate(selectDateObj.toDate(), startDateObj.toDate(), endDateObj.toDate());
     }
   };
 
   var next = function next() {
-    _resolveDate(1);
+    _resolveDate(viewType, 1);
 
-    if (props.onNextClick) {
-      props.onNextClick(selectDate);
+    if (props.onNavigate) {
+      props.onNavigate(selectDateObj.toDate(), startDateObj.toDate(), endDateObj.toDate());
     }
   };
 
@@ -784,7 +719,23 @@ var Scheduler = function Scheduler(props) {
     }
   };
 
-  return /*#__PURE__*/_react.default.createElement(_SchedulerMain.default, Object.assign({}, props, {
+  var clearSelection = function clearSelection() {
+    setSelectedSlot(null);
+  };
+
+  var onSelection = function onSelection(slotId, slotName, startTime, endTime, selectionLeft, selectionWidth) {
+    setSelectedSlot({
+      slotId: slotId,
+      left: selectionLeft,
+      width: selectionWidth
+    });
+
+    if (props.onSelection) {
+      props.onSelection(slotId, slotName, startTime, endTime, clearSelection);
+    }
+  };
+
+  return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(_SchedulerMain.default, Object.assign({}, props, {
     headers: _createHeaders(),
     renderData: _createRenderData(),
     cellUnit: cellUnit,
@@ -816,13 +767,13 @@ var Scheduler = function Scheduler(props) {
     getEventSlotId: _getEventSlotId,
     getSlotById: getSlotById,
     onViewChange: _setViewType,
-    onSelectDate: setDate,
     onMoveEvent: props.onMoveEvent,
-    onCellClick: props.onCellClick,
+    selectedSlot: selectedSlot,
+    onSelection: onSelection,
     onSlotItemExpandToggle: onSlotItemExpandToggle,
-    prevClick: prev,
-    nextClick: next
-  }));
+    onClickPrevious: prev,
+    onClickNext: next
+  })));
 };
 
 var DATE_FORMAT = 'YYYY-MM-DD';

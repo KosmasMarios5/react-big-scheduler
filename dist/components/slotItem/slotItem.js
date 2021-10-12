@@ -28,7 +28,10 @@ var SlotItem = function SlotItem(props) {
 
   var a = typeof slotClickedFunc !== "undefined" ? /*#__PURE__*/_react.default.createElement("span", {
     className: "slot-cell"
-  }, indents, /*#__PURE__*/_react.default.createElement("a", {
+  }, indents, /*#__PURE__*/_react.default.createElement("span", {
+    style: {
+      cursor: "pointer"
+    },
     className: "slot-text",
     onClick: function onClick() {
       return slotClickedFunc(item);

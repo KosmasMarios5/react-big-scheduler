@@ -206,35 +206,7 @@ var SchedulerMain = /*#__PURE__*/function (_Component) {
     };
 
     _this.onViewChange = function (item) {
-      // let viewType = parseInt(e.target.value.charAt(0));
-      // let showAgenda = e.target.value.charAt(1) === '1';
-      // let isEventPerspective = e.target.value.charAt(2) === '1';
       _this.props.onViewChange(item.viewType, item.showAgenda, item.isEventPerspective);
-    };
-
-    _this.goNext = function () {
-      var nextClick = _this.props.nextClick;
-      nextClick();
-    };
-
-    _this.goBack = function () {
-      var prevClick = _this.props.prevClick;
-      prevClick();
-    };
-
-    _this.handleVisibleChange = function (visible) {
-      _this.setState({
-        visible: visible
-      });
-    };
-
-    _this.onSelect = function (date) {
-      _this.setState({
-        visible: false
-      });
-
-      var onSelectDate = _this.props.onSelectDate;
-      onSelectDate(date);
     };
 
     var _contentHeight = props.contentHeight,
@@ -451,9 +423,8 @@ var SchedulerMain = /*#__PURE__*/function (_Component) {
         views: config.views,
         messages: config.messages,
         onViewChange: this.onViewChange,
-        selectedDate: this.props.selectedDate,
-        goBack: this.goBack,
-        goNext: this.goNext
+        goBack: this.props.onClickPrevious,
+        goNext: this.props.onClickNext
       }), /*#__PURE__*/_react.default.createElement("table", {
         id: "RBS-Scheduler-root",
         style: {
