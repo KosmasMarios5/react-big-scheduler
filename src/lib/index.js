@@ -643,6 +643,10 @@ const Scheduler = (props) => {
         }
     }
 
+    const clearSelection = () => {
+        setSelectedSlot(null)
+    }
+
     const onSelection = (slotId, slotName, startTime, endTime, selectionLeft, selectionWidth) => {
         setSelectedSlot({
             slotId,
@@ -650,7 +654,7 @@ const Scheduler = (props) => {
             width: selectionWidth
         })
         if (props.onSelection){
-            props.onSelection(slotId, slotName, startTime, endTime);
+            props.onSelection(slotId, slotName, startTime, endTime, clearSelection);
         }
     }
 
